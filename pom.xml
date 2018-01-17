@@ -1,0 +1,295 @@
+<!--
+  ~ Copyright 2018 Uppsala University Library
+  ~
+  ~ This file is part of Cora.
+  ~
+  ~     Cora is free software: you can redistribute it and/or modify
+  ~     it under the terms of the GNU General Public License as published by
+  ~     the Free Software Foundation, either version 3 of the License, or
+  ~     (at your option) any later version.
+  ~
+  ~     Cora is distributed in the hope that it will be useful,
+  ~     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~     GNU General Public License for more details.
+  ~
+  ~     You should have received a copy of the GNU General Public License
+  ~     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>se.uu.ub.cora</groupId>
+		<artifactId>cora-parent</artifactId>
+		<version>0.6-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>fitnesseintegration</artifactId>
+	<packaging>jar</packaging>
+	<version>0.1-SNAPSHOT</version>
+	<name>Fitnesse integration</name>
+
+	<properties>
+		<json.version>0.3-SNAPSHOT</json.version>
+		<httphandler.version>0.2-SNAPSHOT</httphandler.version>
+		<javax.ws.rs.version>2.0.1</javax.ws.rs.version>
+		<fitnesse.version>20161106</fitnesse.version>
+	</properties>
+
+	<scm>
+		<connection>scm:git:https://git.epc.ub.uu.se/epc/fitnesse.git</connection>
+		<developerConnection>scm:git:https://git.epc.ub.uu.se/epc/fitnesse.git</developerConnection>
+		<url>https://git.epc.ub.uu.se/epc/fitnesse.git</url>
+	</scm>
+
+	<repositories>
+		<repository>
+			<id>maven-public</id>
+			<name>LSU Nexus Repository</name>
+			<url>http://epc.ub.uu.se/nexus/repository/maven-public/</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<updatePolicy>daily</updatePolicy>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${testng.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>json</artifactId>
+			<version>${json.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>se.uu.ub.cora</groupId>
+			<artifactId>httphandler</artifactId>
+			<version>${httphandler.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.ws.rs</groupId>
+			<artifactId>javax.ws.rs-api</artifactId>
+			<version>${javax.ws.rs.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- FitNesse -->
+		<dependency>
+			<groupId>org.fitnesse</groupId>
+			<artifactId>fitnesse</artifactId>
+			<version>${fitnesse.version}</version>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>smartrics.restfixture</groupId> -->
+		<!-- <artifactId>smartrics-RestFixture</artifactId> -->
+		<!-- <version>4.0</version> -->
+		<!-- <scope>runtime</scope> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>org.fitnesse.plugins</groupId>
+			<artifactId>maven-classpath-plugin</artifactId>
+			<version>1.9</version>
+		</dependency>
+		<!-- FitNesse end -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- <dependency> -->
+		<!-- <groupId>org.apache.httpcomponents</groupId> -->
+		<!-- <artifactId>httpmime</artifactId> -->
+		<!-- <version>4.5.2</version> -->
+		<!-- <scope>compile</scope> -->
+		<!-- </dependency> -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>4.5.2</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<!-- <build> -->
+	<!-- <finalName>fitnesse</finalName> -->
+	<!-- <resources> -->
+	<!-- <resource> -->
+	<!-- <targetPath>FitNesseRoot</targetPath> -->
+	<!-- <directory>FitNesseRoot</directory> -->
+	<!-- <filtering>true</filtering> -->
+	<!-- <includes> -->
+	<!-- <include>DocumentationPage/</include> -->
+	<!-- <include>FrontPage/</include> -->
+	<!-- <include>JsClient/</include> -->
+	<!-- <include>RestFixtureInstallTest/</include> -->
+	<!-- <include>TheRestTests/</include> -->
+	<!-- <include>properties</include> -->
+	<!-- </includes> -->
+	<!-- <excludes> -->
+	<!-- <exclude>**/*.zip</exclude> -->
+	<!-- </excludes> -->
+	<!-- </resource> -->
+	<!-- </resources> -->
+	<!-- <plugins> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.maven.plugins</groupId> -->
+	<!-- <artifactId>maven-shade-plugin</artifactId> -->
+	<!-- <version>2.4.3</version> -->
+	<!-- <executions> -->
+	<!-- <execution> -->
+	<!-- <phase>package</phase> -->
+	<!-- <goals> -->
+	<!-- <goal>shade</goal> -->
+	<!-- </goals> -->
+	<!-- <configuration> -->
+	<!-- <minimizeJar>true</minimizeJar> -->
+	<!-- <createDependencyReducedPom>true</createDependencyReducedPom> -->
+	<!-- <dependencyReducedPomLocation> -->
+	<!-- ${java.io.tmpdir}/dependency-reduced-pom.xml -->
+	<!-- </dependencyReducedPomLocation> -->
+	<!-- <relocations> -->
+	<!-- <relocation> -->
+	<!-- <pattern>com.acme.coyote</pattern> -->
+	<!-- <shadedPattern>hidden.coyote</shadedPattern> -->
+	<!-- </relocation> -->
+	<!-- </relocations> -->
+	<!-- <artifactSet> -->
+	<!-- <excludes> -->
+	<!-- <exclude>org.glassfish*</exclude> -->
+	<!-- <exclude>se.uu.ub.cora.gatekeeper.UserPickerFactory*</exclude> -->
+	<!-- </excludes> -->
+	<!-- </artifactSet> -->
+	<!-- </configuration> -->
+	<!-- </execution> -->
+	<!-- </executions> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+	<!-- <pluginManagement> -->
+	<!-- <plugins> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.eclipse.jetty</groupId> -->
+	<!-- <artifactId>jetty-maven-plugin</artifactId> -->
+	<!-- <version>9.3.7.v20160115</version> -->
+	<!-- <configuration> -->
+	<!-- <stopKey>STOP</stopKey> -->
+	<!-- <stopPort>9999</stopPort> -->
+	<!-- <scanIntervalSeconds>5</scanIntervalSeconds> -->
+	<!-- <httpConnector> -->
+	<!-- <port>8089</port> -->
+	<!-- </httpConnector> -->
+	<!-- <webApp> -->
+	<!-- <descriptor>src/main/webapp/WEB-INF/jetty/web.xml</descriptor> -->
+	<!-- <contextPath>/cora</contextPath> -->
+	<!-- </webApp> -->
+	<!-- </configuration> -->
+	<!-- <executions> -->
+	<!-- <execution> -->
+	<!-- <id>start-jetty</id> -->
+	<!-- <phase>pre-integration-test</phase> -->
+	<!-- <goals> -->
+	<!-- <goal>stop</goal> -->
+	<!-- <goal>start</goal> -->
+	<!-- </goals> -->
+	<!-- <configuration> -->
+	<!-- <stopKey>STOP</stopKey> -->
+	<!-- <stopPort>9999</stopPort> -->
+	<!-- <scanIntervalSeconds>0</scanIntervalSeconds> -->
+	<!-- <daemon>true</daemon> -->
+	<!-- </configuration> -->
+	<!-- </execution> -->
+	<!-- <execution> -->
+	<!-- <id>stop-jetty</id> -->
+	<!-- <phase>post-integration-test</phase> -->
+	<!-- <goals> -->
+	<!-- <goal>stop</goal> -->
+	<!-- </goals> -->
+	<!-- </execution> -->
+	<!-- </executions> -->
+	<!-- </plugin> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.maven.plugins</groupId> -->
+	<!-- <artifactId>maven-antrun-plugin</artifactId> -->
+	<!-- <version>1.8</version> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+	<!-- </pluginManagement> -->
+	<!-- </build> -->
+
+	<!-- <profiles> -->
+	<!-- <profile> -->
+	<!-- <id>fitnesse-junit</id> -->
+	<!-- <build> -->
+	<!-- <plugins> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.maven.plugins</groupId> -->
+	<!-- <artifactId>maven-failsafe-plugin</artifactId> -->
+	<!-- <dependencies> -->
+	<!-- <dependency> -->
+	<!-- <groupId>org.apache.maven.surefire</groupId> -->
+	<!-- <artifactId>surefire-junit47</artifactId> -->
+	<!-- <version>2.18.1</version> -->
+	<!-- </dependency> -->
+	<!-- </dependencies> -->
+	<!-- <executions> -->
+	<!-- <execution> -->
+	<!-- <id>integration-test</id> -->
+	<!-- <goals> -->
+	<!-- <goal>integration-test</goal> -->
+	<!-- </goals> -->
+	<!-- </execution> -->
+	<!-- <execution> -->
+	<!-- <id>verify</id> -->
+	<!-- <goals> -->
+	<!-- <goal>verify</goal> -->
+	<!-- </goals> -->
+	<!-- </execution> -->
+	<!-- </executions> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+	<!-- </build> -->
+	<!-- </profile> -->
+	<!-- <profile> -->
+	<!-- <id>wiki</id> -->
+	<!-- <build> -->
+	<!-- <plugins> -->
+	<!-- <plugin> -->
+	<!-- <groupId>org.apache.maven.plugins</groupId> -->
+	<!-- <artifactId>maven-antrun-plugin</artifactId> -->
+	<!-- <executions> -->
+	<!-- <execution> -->
+	<!-- <id>start-fitnesse</id> -->
+	<!-- <phase>integration-test</phase> -->
+	<!-- <configuration> -->
+	<!-- <target> -->
+	<!-- <echo taskname="fitnesse" message="Starting FitNesse Wiki..." /> -->
+	<!-- <java classname="fitnesseMain.FitNesseMain" classpathref="maven.runtime.classpath" -->
+	<!-- fork="true"> -->
+	<!-- <arg line="-p 8090" /> -->
+	<!-- <arg line="-d ." /> -->
+	<!-- </java> -->
+	<!-- </target> -->
+	<!-- </configuration> -->
+	<!-- <goals> -->
+	<!-- <goal>run</goal> -->
+	<!-- </goals> -->
+	<!-- </execution> -->
+	<!-- </executions> -->
+	<!-- </plugin> -->
+	<!-- </plugins> -->
+	<!-- </build> -->
+	<!-- </profile> -->
+	<!-- </profiles> -->
+</project>
