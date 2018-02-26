@@ -237,11 +237,15 @@ public class RecordEndpointFixture {
 	}
 
 	private JsonObject extractDataAsJsonObjectFromResponseText(String responseText) {
+		JsonObject record = extractRecordAsJsonObjectFromResponseText(responseText);
+		return record.getValueAsJsonObject("data");
+	}
+
+	private JsonObject extractRecordAsJsonObjectFromResponseText(String responseText) {
 		JsonParser jsonParser = new OrgJsonParser();
 		JsonValue jsonValue = jsonParser.parseString(responseText);
 		JsonObject textAsJsonObject = (JsonObject) jsonValue;
-		JsonObject record = textAsJsonObject.getValueAsJsonObject("record");
-		return record.getValueAsJsonObject("data");
+		return textAsJsonObject.getValueAsJsonObject("record");
 	}
 
 	private String getRecordTypeFromData(JsonObject data) {
@@ -367,6 +371,12 @@ public class RecordEndpointFixture {
 			return httpHandler.getResponseText();
 		}
 		return httpHandler.getErrorText();
+	}
+
+	public void testReadRecordAndStoreJson() {
+		String responseText = testReadRecord();
+		JsonObject record = extractRecordAsJsonObjectFromResponseText(responseText);
+		JsonHolder.setJson(record);
 	}
 
 }

@@ -1,6 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
@@ -343,4 +344,13 @@ public class RecordEndpointFixtureTest {
 		assertEquals(fixture.testReadRecordList(), "bad things happend");
 	}
 
+	@Test
+	public void testSetJsonObject() {
+		fixture.setType("metadataGroup");
+		fixture.setId("someMetadataGroupId");
+		fixture.setAuthToken("someToken");
+		fixture.testReadRecordAndStoreJson();
+
+		assertNotEquals(JsonHolder.getJson(), null);
+	}
 }
