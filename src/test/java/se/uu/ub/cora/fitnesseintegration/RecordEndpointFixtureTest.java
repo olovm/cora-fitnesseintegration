@@ -14,6 +14,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+
 public class RecordEndpointFixtureTest {
 	private RecordEndpointFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
@@ -351,6 +353,7 @@ public class RecordEndpointFixtureTest {
 		fixture.setAuthToken("someToken");
 		fixture.testReadRecordAndStoreJson();
 
-		assertNotEquals(JsonHolder.getJson(), null);
+		assertNotEquals(RecordHolder.getRecord(), null);
+		assertTrue(RecordHolder.getRecord() instanceof ClientDataRecord);
 	}
 }

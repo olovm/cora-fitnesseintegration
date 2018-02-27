@@ -48,7 +48,7 @@ public class MetadataLinkFixture {
 	}
 
 	public boolean linkIsPresent() {
-		JsonObject record = JsonHolder.getJson();
+		JsonObject record = RecordHolder.getRecord();
 		if (null != record) {
 			JsonObject data = record.getValueAsJsonObject("data");
 			JsonObject childReferences = tryToGetChildFromChildrenArrayByNameInData(data,
