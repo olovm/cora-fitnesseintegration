@@ -24,9 +24,9 @@ import static org.testng.Assert.assertTrue;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonParser;
-import se.uu.ub.cora.json.parser.org.OrgJsonParser;
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
+import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class MetadataLinkFixtureTest {
 
@@ -35,28 +35,74 @@ public class MetadataLinkFixtureTest {
 	@BeforeMethod
 	public void setUp() {
 		fixture = new MetadataLinkFixture();
-		RecordHolder.setRecord(null);
-		fixture.setNameInData("someNameInData");
-		fixture.setLinkedRecordType("metadataGroup");
-		fixture.setLinkedRecordId("someRecordId");
+
+		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
+
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		RecordHolder.setRecord(record);
+
+	}
+
+	private ClientDataGroup createTopLevelDataGroup() {
+		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
+		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
+		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("0", "metadataGroup", "someRecordId");
+		childReferences.addChild(childReference);
+		topLevelDataGroup.addChild(childReferences);
+		return topLevelDataGroup;
+	}
+
+	private ClientDataGroup createChildReferenceWithRepeatIdRecordTypeAndRecordId(String repeatId, String linkedRecordType, String linkedRecordId) {
+		ClientDataGroup childReference = ClientDataGroup.withNameInData("childReference");
+		childReference.setRepeatId(repeatId);
+		ClientDataGroup ref = ClientDataGroup.withNameInData("ref");
+		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordType", linkedRecordType));
+		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordId", linkedRecordId));
+		childReference.addChild(ref);
+		return childReference;
 	}
 
 	@Test
 	public void testLinkIsNotPresent() {
-		// fixture.setJSON("{}");
+//		fixture.setNameInData("someNameInData");
+		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
+		RecordHolder.setRecord(record);
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertFalse(fixture.linkIsPresent());
+	}
+
+	@Test
+	public void testLinkWrongLinkedRecordId() {
+//		fixture.setNameInData("someNameInData");
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("NOTSomeRecordId");
+		assertFalse(fixture.linkIsPresent());
+	}
+
+	@Test
+	public void testLinkWrongLinkedRecordType() {
+//		fixture.setNameInData("someNameInData");
+		fixture.setLinkedRecordType("NOTMetadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
 		assertFalse(fixture.linkIsPresent());
 	}
 
 	@Test
 	public void testLinkIsPresent() {
-		fixture.setLinkedRecordId("recordInfoNewGroup");
-		String jsonRecord = "{\"data\":{\"children\":[{\"children\":[{\"name\":\"id\",\"value\":\"metadataGroupNewGroup\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataGroup\"}],\"name\":\"type\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"name\":\"dataDivider\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"systemOneUser\"},{\"name\":\"linkedRecordId\",\"value\":\"12345\"}],\"name\":\"createdBy\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"systemOneUser\"},{\"name\":\"linkedRecordId\",\"value\":\"12345\"}],\"name\":\"updatedBy\"},{\"name\":\"tsCreated\",\"value\":\"2017-10-01 00:00:00.0\"},{\"name\":\"tsUpdated\",\"value\":\"2017-11-01 17:46:48.0\"}],\"name\":\"recordInfo\"},{\"name\":\"nameInData\",\"value\":\"metadata\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraText\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataGroupNewGroupText\"}],\"name\":\"textId\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"coraText\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataGroupNewGroupDefText\"}],\"name\":\"defTextId\"},{\"children\":[{\"repeatId\":\"0\",\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"metadataCollectionVariable\"},{\"name\":\"linkedRecordId\",\"value\":\"metadataTypeGroupCollectionVar\"}],\"name\":\"ref\"}],\"name\":\"attributeReferences\"},{\"children\":[{\"repeatId\":\"1\",\"children\":[{\"name\":\"repeatMin\",\"value\":\"1\"},{\"name\":\"repeatMax\",\"value\":\"1\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"metadataGroup\"},{\"name\":\"linkedRecordId\",\"value\":\"recordInfoNewGroup\"}],\"name\":\"ref\"}],\"name\":\"childReference\"},{\"repeatId\":\"2\",\"children\":[{\"name\":\"repeatMin\",\"value\":\"1\"},{\"name\":\"repeatMax\",\"value\":\"1\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"metadataTextVariable\"},{\"name\":\"linkedRecordId\",\"value\":\"nameInDataTextVar\"}],\"name\":\"ref\"}],\"name\":\"childReference\"},{\"repeatId\":\"3\",\"children\":[{\"name\":\"repeatMin\",\"value\":\"0\"},{\"name\":\"repeatMax\",\"value\":\"1\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"metadataRecordLink\"},{\"name\":\"linkedRecordId\",\"value\":\"textIdLink\"}],\"name\":\"ref\"}],\"name\":\"childReference\"}],\"name\":\"childReferences\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"group\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/metadataGroup/metadataGroupNewGroup\",\"accept\":\"application/vnd.uub.record+json\"}}}";
-		JsonParser jsonParser = new OrgJsonParser();
-		RecordHolder.setRecord((JsonObject) jsonParser.parseString(jsonRecord));
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertTrue(fixture.linkIsPresent());
+	}
+
+	@Test
+	public void testLinkIsPresentAsSecondChild() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someOtherRecordId");
 		assertTrue(fixture.linkIsPresent());
 	}
 }
-
 // {
 // "record": {
 // "data": {

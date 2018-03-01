@@ -21,6 +21,10 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.uu.ub.cora.clientdata.ClientDataAtomic;
+import se.uu.ub.cora.clientdata.ClientDataElement;
+import se.uu.ub.cora.clientdata.ClientDataGroup;
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.json.parser.JsonArray;
 import se.uu.ub.cora.json.parser.JsonObject;
 import se.uu.ub.cora.json.parser.JsonString;
@@ -48,33 +52,46 @@ public class MetadataLinkFixture {
 	}
 
 	public boolean linkIsPresent() {
-		JsonObject record = RecordHolder.getRecord();
+		ClientDataRecord record = RecordHolder.getRecord();
 		if (null != record) {
-			JsonObject data = record.getValueAsJsonObject("data");
-			JsonObject childReferences = tryToGetChildFromChildrenArrayByNameInData(data,
-					"childReferences");
-			List<JsonObject> childReferenceList = tryToGetChildrenByNameInData(childReferences,
-					"childReference");
-			for (JsonObject jsonObject : childReferenceList) {
-				JsonObject ref = tryToGetChildFromChildrenArrayByNameInData(jsonObject, "ref");
-				JsonObject linkedRecordType = tryToGetChildFromChildrenArrayByNameInData(ref,
-						"linkedRecordType");
-				JsonString linkedRecordTypeAsJsonString = linkedRecordType
-						.getValueAsJsonString("value");
-				String linkedRecordTypeAsStringValue = linkedRecordTypeAsJsonString
-						.getStringValue();
+			ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
+			if(topLevelDataGroup.containsChildWithNameInData("childReferences")) {
+				ClientDataGroup childReferences = (ClientDataGroup) topLevelDataGroup.getFirstChildWithNameInData("childReferences");
 
-				JsonObject linkedRecordId = tryToGetChildFromChildrenArrayByNameInData(ref,
-						"linkedRecordId");
-				JsonString linkedRecordIdAsJsonString = linkedRecordId
-						.getValueAsJsonString("value");
-				String linkedRecordIdAsStringValue = linkedRecordIdAsJsonString.getStringValue();
+				ClientDataGroup childReference = (ClientDataGroup) childReferences.getFirstChildWithNameInData("childReference");
+				ClientDataGroup ref = (ClientDataGroup) childReference.getFirstChildWithNameInData("ref");
+				String childLinkedRecordType = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordType")).getValue();
+				String childLinkedRecordId = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordId")).getValue();
 
-				if (this.linkedRecordType.equals(linkedRecordTypeAsStringValue)
-						&& this.linkedRecordId.equals(linkedRecordIdAsStringValue)) {
+				if (childLinkedRecordId.equals(linkedRecordId) && childLinkedRecordType.equals(linkedRecordType)) {
 					return true;
 				}
 			}
+//			JsonObject data = record.getValueAsJsonObject("data");
+//			JsonObject childReferences = tryToGetChildFromChildrenArrayByNameInData(data,
+//					"childReferences");
+//			List<JsonObject> childReferenceList = tryToGetChildrenByNameInData(childReferences,
+//					"childReference");
+//			for (JsonObject jsonObject : childReferenceList) {
+//				JsonObject ref = tryToGetChildFromChildrenArrayByNameInData(jsonObject, "ref");
+//				JsonObject linkedRecordType = tryToGetChildFromChildrenArrayByNameInData(ref,
+//						"linkedRecordType");
+//				JsonString linkedRecordTypeAsJsonString = linkedRecordType
+//						.getValueAsJsonString("value");
+//				String linkedRecordTypeAsStringValue = linkedRecordTypeAsJsonString
+//						.getStringValue();
+//
+//				JsonObject linkedRecordId = tryToGetChildFromChildrenArrayByNameInData(ref,
+//						"linkedRecordId");
+//				JsonString linkedRecordIdAsJsonString = linkedRecordId
+//						.getValueAsJsonString("value");
+//				String linkedRecordIdAsStringValue = linkedRecordIdAsJsonString.getStringValue();
+//
+//				if (this.linkedRecordType.equals(linkedRecordTypeAsStringValue)
+//						&& this.linkedRecordId.equals(linkedRecordIdAsStringValue)) {
+//					return true;
+//				}
+//			}
 		}
 		return false;
 	}

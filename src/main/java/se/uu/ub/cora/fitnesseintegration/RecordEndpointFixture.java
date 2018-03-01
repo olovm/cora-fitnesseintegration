@@ -377,7 +377,7 @@ public class RecordEndpointFixture {
 		String responseText = testReadRecord();
 
 		JsonObject record = extractRecordAsJsonObjectFromResponseText(responseText);
-		RecordHolder.setRecord(record);
+//		RecordHolder.setRecord(record);
 	}
 
 }
