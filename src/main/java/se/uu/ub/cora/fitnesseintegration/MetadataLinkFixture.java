@@ -18,17 +18,10 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataAtomic;
-import se.uu.ub.cora.clientdata.ClientDataElement;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.json.parser.JsonArray;
-import se.uu.ub.cora.json.parser.JsonObject;
-import se.uu.ub.cora.json.parser.JsonString;
-import se.uu.ub.cora.json.parser.JsonValue;
 
 public class MetadataLinkFixture {
 
@@ -53,74 +46,46 @@ public class MetadataLinkFixture {
 
 	public boolean linkIsPresent() {
 		ClientDataRecord record = RecordHolder.getRecord();
-		if (null != record) {
-			ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
-			if(topLevelDataGroup.containsChildWithNameInData("childReferences")) {
-				ClientDataGroup childReferences = (ClientDataGroup) topLevelDataGroup.getFirstChildWithNameInData("childReferences");
-
-				ClientDataGroup childReference = childReferences.getFirstGroupWithNameInData("childReference");
-				ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
-				String childLinkedRecordType = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordType")).getValue();
-				String childLinkedRecordId = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordId")).getValue();
-
-				if (childLinkedRecordId.equals(linkedRecordId) && childLinkedRecordType.equals(linkedRecordType)) {
-					return true;
-				}
+		ClientDataGroup topLevelDataGroup;
+		if (null == record || record.getClientDataGroup() == null) {
+			return false;
+		} else {
+			topLevelDataGroup = record.getClientDataGroup();
+			if (!topLevelDataGroup.containsChildWithNameInData("childReferences")) {
+				return false;
 			}
-//			JsonObject data = record.getValueAsJsonObject("data");
-//			JsonObject childReferences = tryToGetChildFromChildrenArrayByNameInData(data,
-//					"childReferences");
-//			List<JsonObject> childReferenceList = tryToGetChildrenByNameInData(childReferences,
-//					"childReference");
-//			for (JsonObject jsonObject : childReferenceList) {
-//				JsonObject ref = tryToGetChildFromChildrenArrayByNameInData(jsonObject, "ref");
-//				JsonObject linkedRecordType = tryToGetChildFromChildrenArrayByNameInData(ref,
-//						"linkedRecordType");
-//				JsonString linkedRecordTypeAsJsonString = linkedRecordType
-//						.getValueAsJsonString("value");
-//				String linkedRecordTypeAsStringValue = linkedRecordTypeAsJsonString
-//						.getStringValue();
-//
-//				JsonObject linkedRecordId = tryToGetChildFromChildrenArrayByNameInData(ref,
-//						"linkedRecordId");
-//				JsonString linkedRecordIdAsJsonString = linkedRecordId
-//						.getValueAsJsonString("value");
-//				String linkedRecordIdAsStringValue = linkedRecordIdAsJsonString.getStringValue();
-//
-//				if (this.linkedRecordType.equals(linkedRecordTypeAsStringValue)
-//						&& this.linkedRecordId.equals(linkedRecordIdAsStringValue)) {
-//					return true;
-//				}
-//			}
+		}
+		return linkIsPresentInChildReferences(topLevelDataGroup);
+
+	}
+
+	private boolean linkIsPresentInChildReferences(ClientDataGroup topLevelDataGroup) {
+		List<ClientDataGroup> childReferenceList = getChildReferenceList(topLevelDataGroup);
+		for (ClientDataGroup childReference : childReferenceList) {
+			String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
+					"linkedRecordType");
+			String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
+					"linkedRecordId");
+
+			if (childLinkedRecordId.equals(linkedRecordId)
+					&& childLinkedRecordType.equals(linkedRecordType)) {
+				return true;
+			}
 		}
 		return false;
 	}
 
-	private JsonObject tryToGetChildFromChildrenArrayByNameInData(JsonObject jsonObject,
-			String nameInData) {
-		JsonArray children = jsonObject.getValueAsJsonArray("children");
-		for (JsonValue child : children) {
-			JsonObject jsonChildObject = (JsonObject) child;
-			String name = jsonChildObject.getValueAsJsonString("name").getStringValue();
-			if (nameInData.equals(name)) {
-				return jsonChildObject;
-			}
-		}
-		throw new ChildNotFoundException("child with name: " + nameInData + "not found");
+	private String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
+			String childNameInData) {
+		ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
+		String childLinkedRecordType = ref.getFirstAtomicValueWithNameInData(childNameInData);
+		return childLinkedRecordType;
 	}
 
-	private List<JsonObject> tryToGetChildrenByNameInData(JsonObject jsonObject,
-			String nameInData) {
-		JsonArray children = jsonObject.getValueAsJsonArray("children");
-		List<JsonObject> foundChildren = new ArrayList<>();
-		for (JsonValue child : children) {
-			JsonObject jsonChildObject = (JsonObject) child;
-			String name = jsonChildObject.getValueAsJsonString("name").getStringValue();
-			if (nameInData.equals(name)) {
-				foundChildren.add(jsonChildObject);
-			}
-		}
-		return foundChildren;
+	private List<ClientDataGroup> getChildReferenceList(ClientDataGroup topLevelDataGroup) {
+		ClientDataGroup childReferences = topLevelDataGroup
+				.getFirstGroupWithNameInData("childReferences");
+		return childReferences.getAllGroupsWithNameInData("childReference");
 	}
 
 }

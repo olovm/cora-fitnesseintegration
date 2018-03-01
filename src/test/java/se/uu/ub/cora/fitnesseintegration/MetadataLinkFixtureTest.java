@@ -46,13 +46,15 @@ public class MetadataLinkFixtureTest {
 	private ClientDataGroup createTopLevelDataGroup() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
-		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("0", "metadataGroup", "someRecordId");
+		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("0",
+				"metadataGroup", "someRecordId");
 		childReferences.addChild(childReference);
 		topLevelDataGroup.addChild(childReferences);
 		return topLevelDataGroup;
 	}
 
-	private ClientDataGroup createChildReferenceWithRepeatIdRecordTypeAndRecordId(String repeatId, String linkedRecordType, String linkedRecordId) {
+	private ClientDataGroup createChildReferenceWithRepeatIdRecordTypeAndRecordId(String repeatId,
+			String linkedRecordType, String linkedRecordId) {
 		ClientDataGroup childReference = ClientDataGroup.withNameInData("childReference");
 		childReference.setRepeatId(repeatId);
 		ClientDataGroup ref = ClientDataGroup.withNameInData("ref");
@@ -63,8 +65,24 @@ public class MetadataLinkFixtureTest {
 	}
 
 	@Test
+	public void testLinkIsNotPresentRecordIsNull() {
+		RecordHolder.setRecord(null);
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertFalse(fixture.linkIsPresent());
+	}
+
+	@Test
+	public void testLinkIsNotPresentRecordContainsNoDataGroup() {
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
+		RecordHolder.setRecord(record);
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertFalse(fixture.linkIsPresent());
+	}
+
+	@Test
 	public void testLinkIsNotPresent() {
-//		fixture.setNameInData("someNameInData");
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		RecordHolder.setRecord(record);
@@ -75,7 +93,6 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testLinkWrongLinkedRecordId() {
-//		fixture.setNameInData("someNameInData");
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("NOTSomeRecordId");
 		assertFalse(fixture.linkIsPresent());
@@ -83,7 +100,6 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testLinkWrongLinkedRecordType() {
-//		fixture.setNameInData("someNameInData");
 		fixture.setLinkedRecordType("NOTMetadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 		assertFalse(fixture.linkIsPresent());
@@ -98,38 +114,16 @@ public class MetadataLinkFixtureTest {
 
 	@Test
 	public void testLinkIsPresentAsSecondChild() {
+		ClientDataRecord record = RecordHolder.getRecord();
+		ClientDataGroup clientDataGroup = record.getClientDataGroup();
+		ClientDataGroup childReferences = clientDataGroup
+				.getFirstGroupWithNameInData("childReferences");
+		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("1",
+				"metadataGroup", "someOtherRecordId");
+		childReferences.addChild(childReference);
+
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someOtherRecordId");
 		assertTrue(fixture.linkIsPresent());
 	}
 }
-// {
-// "record": {
-// "data": {
-// "children": [
-// {
-// "children": [
-// {
-// "name": "linkedRecordType",
-// "value": "someRecordType"
-// },
-// {
-// "name": "linkedRecordId",
-// "value": "someRecordId"
-// }
-// ],
-// "actionLinks": {
-// "read": {
-// "requestMethod": "GET",
-// "rel": "read",
-// "url": "http://localhost:8080/therest/rest/record/metadataGroup/placeGroup",
-// "accept": "application/vnd.uub.record+json"
-// }
-// },
-// "name": "someNameInData"
-// }
-// ],
-// "name": "recordType"
-// }
-// }
-// }
