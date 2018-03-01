@@ -58,8 +58,8 @@ public class MetadataLinkFixture {
 			if(topLevelDataGroup.containsChildWithNameInData("childReferences")) {
 				ClientDataGroup childReferences = (ClientDataGroup) topLevelDataGroup.getFirstChildWithNameInData("childReferences");
 
-				ClientDataGroup childReference = (ClientDataGroup) childReferences.getFirstChildWithNameInData("childReference");
-				ClientDataGroup ref = (ClientDataGroup) childReference.getFirstChildWithNameInData("ref");
+				ClientDataGroup childReference = childReferences.getFirstGroupWithNameInData("childReference");
+				ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
 				String childLinkedRecordType = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordType")).getValue();
 				String childLinkedRecordId = ((ClientDataAtomic) ref.getFirstChildWithNameInData("linkedRecordId")).getValue();
 
