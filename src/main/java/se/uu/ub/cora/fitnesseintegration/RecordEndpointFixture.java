@@ -29,6 +29,10 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpMultiPartUploader;
@@ -242,10 +246,14 @@ public class RecordEndpointFixture {
 	}
 
 	private JsonObject extractRecordAsJsonObjectFromResponseText(String responseText) {
+		JsonObject textAsJsonObject = createJsonObjectFromResponseText(responseText);
+		return textAsJsonObject.getValueAsJsonObject("record");
+	}
+
+	private JsonObject createJsonObjectFromResponseText(String responseText) {
 		JsonParser jsonParser = new OrgJsonParser();
 		JsonValue jsonValue = jsonParser.parseString(responseText);
-		JsonObject textAsJsonObject = (JsonObject) jsonValue;
-		return textAsJsonObject.getValueAsJsonObject("record");
+		return (JsonObject) jsonValue;
 	}
 
 	private String getRecordTypeFromData(JsonObject data) {
@@ -375,9 +383,14 @@ public class RecordEndpointFixture {
 
 	public void testReadRecordAndStoreJson() {
 		String responseText = testReadRecord();
+		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
 
-		JsonObject record = extractRecordAsJsonObjectFromResponseText(responseText);
-//		RecordHolder.setRecord(record);
+		JsonToDataConverterFactory recordConverterFactory = new JsonToDataConverterFactoryImp();
+		JsonToDataRecordConverter converter = JsonToDataRecordConverter
+				.forJsonObjectUsingConverterFactory(recordJsonObject, recordConverterFactory);
+		ClientDataRecord clientDataRecord = converter.toInstance();
+
+		RecordHolder.setRecord(clientDataRecord);
 	}
 
 }
