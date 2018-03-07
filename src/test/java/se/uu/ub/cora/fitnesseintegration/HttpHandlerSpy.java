@@ -65,6 +65,9 @@ public class HttpHandlerSpy implements HttpHandler {
 		if (httpUrlConnection.getURL().toString().contains("someWrongRecordTypeWrongJson")) {
 			return "{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\",\"value\":\"cora\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/system/cora\",\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"dataDivider\"},{\"name\":\"id\",\"value\":\"someId\"},{\"name\":\"createdBy\",\"value\":\"131313\"}],\"name\":\"recordInfo\"}],\"name\":\"binary\",\"attributes\":{\"type\":\"someRecordTypeAttribute\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\",\"contentType\":\"application/vnd.uub.record+json\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\",\"accept\":\"application/vnd.uub.record+json\"},\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\",\"url\":\"http://localhost:8080/therest/rest/record/someRecordType/someId\"}}}}";
 		}
+		if (httpUrlConnection.getURL().toString().contains("metadataGroup/someMetadataGroupId")) {
+			return "{\"record\":{\"data\":{\"children\":[{\"name\":\"nameInData\",\"value\":\"presentation\"}],\"name\":\"metadata\",\"attributes\":{\"type\":\"recordLink\"}},\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\"http://localhost:8080/therest/rest/record/metadataRecordLink/linkedRecordPresentationPresentationLink\",\"accept\":\"application/vnd.uub.record+json\"}}}}";
+		}
 		return "Everything ok";
 	}
 

@@ -1,6 +1,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ import javax.ws.rs.core.Response;
 import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class RecordEndpointFixtureTest {
 	private RecordEndpointFixture fixture;
@@ -343,4 +346,14 @@ public class RecordEndpointFixtureTest {
 		assertEquals(fixture.testReadRecordList(), "bad things happend");
 	}
 
+	@Test
+	public void testSetJsonObject() {
+		fixture.setType("metadataGroup");
+		fixture.setId("someMetadataGroupId");
+		fixture.setAuthToken("someToken");
+		fixture.testReadRecordAndStoreJson();
+
+		assertNotEquals(RecordHolder.getRecord(), null);
+		assertTrue(RecordHolder.getRecord() instanceof ClientDataRecord);
+	}
 }
