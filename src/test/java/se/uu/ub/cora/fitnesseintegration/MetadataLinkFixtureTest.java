@@ -18,8 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
-import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.assertEquals;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -47,38 +46,23 @@ public class MetadataLinkFixtureTest {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		ClientDataGroup childReferences = ClientDataGroup.withNameInData("childReferences");
 		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("0",
-				"metadataGroup", "someRecordId");
+				"metadataGroup", "someRecordId", "0", "X");
 		childReferences.addChild(childReference);
 		topLevelDataGroup.addChild(childReferences);
 		return topLevelDataGroup;
 	}
 
 	private ClientDataGroup createChildReferenceWithRepeatIdRecordTypeAndRecordId(String repeatId,
-			String linkedRecordType, String linkedRecordId) {
+			String linkedRecordType, String linkedRecordId, String repeatMin, String repeatMax) {
 		ClientDataGroup childReference = ClientDataGroup.withNameInData("childReference");
 		childReference.setRepeatId(repeatId);
 		ClientDataGroup ref = ClientDataGroup.withNameInData("ref");
 		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordType", linkedRecordType));
 		ref.addChild(ClientDataAtomic.withNameInDataAndValue("linkedRecordId", linkedRecordId));
 		childReference.addChild(ref);
+		childReference.addChild(ClientDataAtomic.withNameInDataAndValue("repeatMin", repeatMin));
+		childReference.addChild(ClientDataAtomic.withNameInDataAndValue("repeatMax", repeatMax));
 		return childReference;
-	}
-
-	@Test
-	public void testLinkIsNotPresentRecordIsNull() {
-		RecordHolder.setRecord(null);
-		fixture.setLinkedRecordType("metadataGroup");
-		fixture.setLinkedRecordId("someRecordId");
-		assertFalse(fixture.linkIsPresent());
-	}
-
-	@Test
-	public void testLinkIsNotPresentRecordContainsNoDataGroup() {
-		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
-		RecordHolder.setRecord(record);
-		fixture.setLinkedRecordType("metadataGroup");
-		fixture.setLinkedRecordId("someRecordId");
-		assertFalse(fixture.linkIsPresent());
 	}
 
 	@Test
@@ -88,42 +72,118 @@ public class MetadataLinkFixtureTest {
 		RecordHolder.setRecord(record);
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
-		assertFalse(fixture.linkIsPresent());
+		assertEquals(fixture.getRepeatMin(), "not found");
 	}
 
 	@Test
-	public void testLinkWrongLinkedRecordId() {
-		fixture.setLinkedRecordType("metadataGroup");
-		fixture.setLinkedRecordId("NOTSomeRecordId");
-		assertFalse(fixture.linkIsPresent());
-	}
-
-	@Test
-	public void testLinkWrongLinkedRecordType() {
-		fixture.setLinkedRecordType("NOTMetadataGroup");
+	public void testNoTopLevelDatagroup() {
+		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
+		RecordHolder.setRecord(record);
 		fixture.setLinkedRecordId("someRecordId");
-		assertFalse(fixture.linkIsPresent());
-	}
-
-	@Test
-	public void testLinkIsPresent() {
 		fixture.setLinkedRecordType("metadataGroup");
-		fixture.setLinkedRecordId("someRecordId");
-		assertTrue(fixture.linkIsPresent());
+		assertEquals(fixture.getRepeatMin(), "not found");
 	}
 
-	@Test
-	public void testLinkIsPresentAsSecondChild() {
+	private void createAndAddSecondChild() {
 		ClientDataRecord record = RecordHolder.getRecord();
 		ClientDataGroup clientDataGroup = record.getClientDataGroup();
 		ClientDataGroup childReferences = clientDataGroup
 				.getFirstGroupWithNameInData("childReferences");
 		ClientDataGroup childReference = createChildReferenceWithRepeatIdRecordTypeAndRecordId("1",
-				"metadataGroup", "someOtherRecordId");
+				"metadataGroup", "someOtherRecordId", "1", "3");
 		childReferences.addChild(childReference);
+	}
+
+	@Test
+	public void testRepeatMinWithoutRecord() throws Exception {
+		RecordHolder.setRecord(null);
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMin(), "not found");
+	}
+
+	@Test
+	public void testNoMatchingChildForRepeatMinRecordType() {
+		fixture.setLinkedRecordType("NOTmetadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMin(), "not found");
+	}
+
+	@Test
+	public void testNoMatchingChildForRepeatMin() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("NOTsomeRecordId");
+		assertEquals(fixture.getRepeatMin(), "not found");
+	}
+
+	@Test
+	public void testRepeatMinIsCorrect() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMin(), "0");
+	}
+
+	@Test
+	public void testRepeatMinIsCorrectSecondChild() {
+		createAndAddSecondChild();
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someOtherRecordId");
+		assertEquals(fixture.getRepeatMin(), "1");
+	}
+
+	@Test
+	public void testRepeatMaxWithoutRecord() throws Exception {
+		RecordHolder.setRecord(null);
+		assertEquals(fixture.getRepeatMax(), "not found");
+	}
+
+	@Test
+	public void testNoMatchingChildForRepeatMax() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("NOTsomeRecordId");
+		assertEquals(fixture.getRepeatMax(), "not found");
+	}
+
+	@Test
+	public void testRepeatMaxIsCorrect() {
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMax(), "X");
+	}
+
+	@Test
+	public void testRepeatMaxIsCorrectSecondChild() {
+		createAndAddSecondChild();
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someOtherRecordId");
+		assertEquals(fixture.getRepeatMax(), "3");
+	}
+
+	@Test
+	public void testMoreThanOneTestOnSameRecord() {
+		createAndAddSecondChild();
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMin(), "0");
+		assertEquals(fixture.getRepeatMax(), "X");
 
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someOtherRecordId");
-		assertTrue(fixture.linkIsPresent());
+		assertEquals(fixture.getRepeatMin(), "1");
+		assertEquals(fixture.getRepeatMax(), "3");
+	}
+
+	@Test
+	public void testMoreThanOneTestOnSameRecordNoMatchSecondLink() {
+		createAndAddSecondChild();
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+		assertEquals(fixture.getRepeatMin(), "0");
+		assertEquals(fixture.getRepeatMax(), "X");
+
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("NOTsomeOtherRecordId");
+		assertEquals(fixture.getRepeatMin(), "not found");
+		assertEquals(fixture.getRepeatMax(), "not found");
 	}
 }

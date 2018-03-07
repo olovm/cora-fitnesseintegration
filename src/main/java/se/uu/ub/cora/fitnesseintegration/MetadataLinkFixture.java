@@ -18,6 +18,7 @@
  */
 package se.uu.ub.cora.fitnesseintegration;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
@@ -25,67 +26,91 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class MetadataLinkFixture {
 
-	private String nameInData;
 	private String linkedRecordType;
 	private String linkedRecordId;
-
-	public void setNameInData(String nameInData) {
-		this.nameInData = nameInData;
-
-	}
+	private List<ClientDataGroup> childReferenceList = new ArrayList<>();
+	private ClientDataGroup matchingChildReference;
 
 	public void setLinkedRecordType(String linkedRecordType) {
 		this.linkedRecordType = linkedRecordType;
-
+		tryToSetMatchingChildReference();
 	}
 
 	public void setLinkedRecordId(String linkedRecordId) {
 		this.linkedRecordId = linkedRecordId;
-
+		tryToSetMatchingChildReference();
 	}
 
-	public boolean linkIsPresent() {
+	private void tryToSetMatchingChildReference() {
+		if (linkedRecordType != null && linkedRecordId != null) {
+			resetData();
+			tryToSetChildReferenceList();
+			setMatchingChildReference();
+		}
+	}
+
+	private void resetData() {
+		matchingChildReference = null;
+	}
+
+	private void tryToSetChildReferenceList() {
 		ClientDataRecord record = RecordHolder.getRecord();
 		ClientDataGroup topLevelDataGroup;
-		if (null == record || record.getClientDataGroup() == null) {
-			return false;
-		} else {
+		if (null != record && record.getClientDataGroup() != null) {
 			topLevelDataGroup = record.getClientDataGroup();
-			if (!topLevelDataGroup.containsChildWithNameInData("childReferences")) {
-				return false;
-			}
+			setChildReferenceList(topLevelDataGroup);
 		}
-		return linkIsPresentInChildReferences(topLevelDataGroup);
-
 	}
 
-	private boolean linkIsPresentInChildReferences(ClientDataGroup topLevelDataGroup) {
-		List<ClientDataGroup> childReferenceList = getChildReferenceList(topLevelDataGroup);
-		for (ClientDataGroup childReference : childReferenceList) {
-			String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
-					"linkedRecordType");
-			String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
-					"linkedRecordId");
-
-			if (childLinkedRecordId.equals(linkedRecordId)
-					&& childLinkedRecordType.equals(linkedRecordType)) {
-				return true;
-			}
+	private void setChildReferenceList(ClientDataGroup topLevelDataGroup) {
+		if (childReferencesExists(topLevelDataGroup)) {
+			ClientDataGroup childReferences = topLevelDataGroup
+					.getFirstGroupWithNameInData("childReferences");
+			childReferenceList = childReferences.getAllGroupsWithNameInData("childReference");
 		}
-		return false;
+	}
+
+	private boolean childReferencesExists(ClientDataGroup topLevelDataGroup) {
+		return topLevelDataGroup.containsChildWithNameInData("childReferences");
+	}
+
+	private void setMatchingChildReference() {
+		for (ClientDataGroup childReference : childReferenceList) {
+			setChildRefrenceIfMatchingTypeAndId(childReference);
+		}
+	}
+
+	private void setChildRefrenceIfMatchingTypeAndId(ClientDataGroup childReference) {
+		String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
+				"linkedRecordType");
+		String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
+				"linkedRecordId");
+
+		if (childLinkedRecordId.equals(linkedRecordId)
+				&& childLinkedRecordType.equals(linkedRecordType)) {
+			matchingChildReference = childReference;
+		}
 	}
 
 	private String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
 			String childNameInData) {
 		ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
-		String childLinkedRecordType = ref.getFirstAtomicValueWithNameInData(childNameInData);
-		return childLinkedRecordType;
+		return ref.getFirstAtomicValueWithNameInData(childNameInData);
 	}
 
-	private List<ClientDataGroup> getChildReferenceList(ClientDataGroup topLevelDataGroup) {
-		ClientDataGroup childReferences = topLevelDataGroup
-				.getFirstGroupWithNameInData("childReferences");
-		return childReferences.getAllGroupsWithNameInData("childReference");
+	public String getRepeatMin() {
+		return getAtomicValueByNameInDataFromMatchingChild("repeatMin");
+	}
+
+	private String getAtomicValueByNameInDataFromMatchingChild(String childNameInData) {
+		if (null == matchingChildReference) {
+			return "not found";
+		}
+		return matchingChildReference.getFirstAtomicValueWithNameInData(childNameInData);
+	}
+
+	public String getRepeatMax() {
+		return getAtomicValueByNameInDataFromMatchingChild("repeatMax");
 	}
 
 }
