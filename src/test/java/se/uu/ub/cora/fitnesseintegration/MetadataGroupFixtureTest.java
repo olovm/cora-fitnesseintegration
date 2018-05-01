@@ -71,12 +71,19 @@ public class MetadataGroupFixtureTest {
 	}
 
 	@Test
-	public void testNoChildPresentFirstLevel() {
+	public void testNoChildPresentFirstLevelNoChildDataGroupSet() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("testStudentThesis");
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		RecordHolder.setRecord(record);
 		fixture.setChildNameInData("testTitle");
 		assertEquals(fixture.numberOfChildrenWithNameInData(), 0);
+	}
+
+	@Test
+	public void testNoChildPresentFirstLevelEmptyNameForChildDataGroup() {
+		fixture.setChildDataGroup("");
+		fixture.setChildNameInData("testTitle");
+		assertEquals(fixture.numberOfChildrenWithNameInData(), 1);
 	}
 
 	@Test

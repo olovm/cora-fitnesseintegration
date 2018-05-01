@@ -34,7 +34,7 @@ public class MetadataGroupFixture {
 	}
 
 	private boolean shouldFindChildrenInTopLevelDataGroup() {
-		return childDataGroupName == null;
+		return childDataGroupName == null || "".equals(childDataGroupName);
 	}
 
 	private int possiblyGetNumOfMatchingChildrenFromChildDataGroup(
