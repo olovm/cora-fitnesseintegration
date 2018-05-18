@@ -118,11 +118,28 @@ public class RecordEndpointFixture {
 
 	public String testReadRecord() {
 		String url = baseUrl + type + "/" + id;
-
 		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	private String getResponseTextOrErrorTextFromUrl(String url) {
+		// CoraClient coraClient = coraClientFactory.createNewClientForUrl(url);
+		// CoraClient coraAuthenticatedClient =
+		// coraClientFactory.createNewClientForUrl(url, userId, appToken);
+		//
+		// String json = coraClient.readRecordAsJson(type, id);
+		// ClientDataRecord record = coraClient.readRecordAsClientRecord(type, id);
+		//
+		// String json2 = coraClient.readRecordListAsJson(type, id);
+		// List<ClientDataRecord> recordList =
+		// coraClient.readRecordListAsClientRecords(type, id);
+
+		// CoraRestClient coraClient = new CoraRestClientImp(factory, baseUrl,
+		// authToken);
+		//
+		//
+		// String json = coraClient.readRecordAsJson(type, id);
+		//
+
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
@@ -131,6 +148,7 @@ public class RecordEndpointFixture {
 			return httpHandler.getResponseText();
 		}
 		return httpHandler.getErrorText();
+
 	}
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
