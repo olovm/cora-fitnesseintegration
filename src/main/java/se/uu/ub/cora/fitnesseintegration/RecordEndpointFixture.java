@@ -43,11 +43,11 @@ import se.uu.ub.cora.json.parser.JsonValue;
 import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class RecordEndpointFixture {
+	private static final String AUTH_TOKEN = "authToken";
 	private static final int DISTANCE_TO_START_OF_TOKEN = 24;
 	private static final int DISTANCE_TO_START_OF_ID = 19;
 	private static final String APPLICATION_UUB_RECORD_JSON = "application/vnd.uub.record+json";
 	private static final String ACCEPT = "Accept";
-	private static final String AUTH_TOKEN = "?authToken=";
 	private String id;
 	private String searchId;
 	private String type;
@@ -118,9 +118,12 @@ public class RecordEndpointFixture {
 
 	public String testReadRecord() {
 		String url = baseUrl + type + "/" + id;
-		url = addAuthTokenToUrl(url);
 
-		HttpHandler httpHandler = factory.factor(url);
+		return getResponseTextOrErrorTextFromUrl(url);
+	}
+
+	private String getResponseTextOrErrorTextFromUrl(String url) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
@@ -130,45 +133,23 @@ public class RecordEndpointFixture {
 		return httpHandler.getErrorText();
 	}
 
-	private String addAuthTokenToUrl(String urlIn) {
-		String url = urlIn;
-		if (authToken != null) {
-			url += AUTH_TOKEN + authToken;
-		} else {
-			url += AUTH_TOKEN + AuthTokenHolder.getAdminAuthToken();
-		}
-		return url;
+	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
+		HttpHandler httpHandler = factory.factor(url);
+		httpHandler.setRequestProperty(AUTH_TOKEN, authToken);
+		return httpHandler;
 	}
 
 	public String testReadIncomingLinks() {
 		String url = baseUrl + type + "/" + id + "/incomingLinks";
-		url = addAuthTokenToUrl(url);
-
-		HttpHandler httpHandler = factory.factor(url);
-		httpHandler.setRequestMethod("GET");
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.OK)) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
+		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	public String testReadRecordList() throws UnsupportedEncodingException {
 		String url = baseUrl + type;
-		url = addAuthTokenToUrl(url);
 		if (json != null) {
-			url += "&filter=" + URLEncoder.encode(json, "UTF-8");
+			url += "?filter=" + URLEncoder.encode(json, "UTF-8");
 		}
-
-		HttpHandler httpHandler = factory.factor(url);
-		httpHandler.setRequestMethod("GET");
-
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		if (statusType.equals(Response.Status.OK)) {
-			return httpHandler.getResponseText();
-		}
-		return httpHandler.getErrorText();
+		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	public String testCreateRecord() {
@@ -187,9 +168,11 @@ public class RecordEndpointFixture {
 
 	private HttpHandler setUpHttpHandlerForCreate() {
 		String url = baseUrl + type;
-		url = addAuthTokenToUrl(url);
+		return createHttpHandlerForPostWithUrl(url);
+	}
 
-		HttpHandler httpHandler = factory.factor(url);
+	private HttpHandler createHttpHandlerForPostWithUrl(String url) {
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
 		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
@@ -234,7 +217,6 @@ public class RecordEndpointFixture {
 		JsonObject data = extractDataAsJsonObjectFromResponseText(responseText);
 		try {
 			return getRecordTypeFromData(data);
-
 		} catch (ChildNotFoundException e) {
 			return "";
 		}
@@ -280,14 +262,7 @@ public class RecordEndpointFixture {
 
 	public String testUpdateRecord() {
 		String url = baseUrl + type + "/" + id;
-		url = addAuthTokenToUrl(url);
-
-		HttpHandler httpHandler = factory.factor(url);
-		httpHandler.setRequestMethod("POST");
-		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setOutput(json);
-
+		HttpHandler httpHandler = createHttpHandlerForPostWithUrl(url);
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
 		if (statusType.equals(Response.Status.OK)) {
@@ -298,9 +273,7 @@ public class RecordEndpointFixture {
 
 	public String testDeleteRecord() {
 		String url = baseUrl + type + "/" + id;
-		url = addAuthTokenToUrl(url);
-
-		HttpHandler httpHandler = factory.factor(url);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("DELETE");
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
@@ -312,15 +285,14 @@ public class RecordEndpointFixture {
 
 	public String testUpload() throws IOException {
 		String url = baseUrl + type + "/" + id + "/master";
-		url = addAuthTokenToUrl(url);
 
 		HttpMultiPartUploader httpHandler = factory.factorHttpMultiPartUploader(url);
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
+		httpHandler.addHeaderField(AUTH_TOKEN, authToken);
 		InputStream fakeStream = new ByteArrayInputStream(
 				"a string".getBytes(StandardCharsets.UTF_8));
 		httpHandler.addFilePart("file", fileName, fakeStream);
 		httpHandler.done();
-		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 		if (statusType.equals(Response.Status.OK)) {
@@ -346,9 +318,7 @@ public class RecordEndpointFixture {
 
 	public String testDownload() {
 		String url = baseUrl + type + "/" + id + "/" + resourceName;
-		url = addAuthTokenToUrl(url);
-
-		HttpHandler httpHandler = factory.factor(url);
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
@@ -368,10 +338,8 @@ public class RecordEndpointFixture {
 
 	public String testSearchRecord() throws UnsupportedEncodingException {
 		String url = baseUrl + "searchResult" + "/" + searchId + "/";
-		url = addAuthTokenToUrl(url);
-		url += "&searchData=" + URLEncoder.encode(json, "UTF-8");
-
-		HttpHandler httpHandler = factory.factor(url);
+		url += "?searchData=" + URLEncoder.encode(json, "UTF-8");
+		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
