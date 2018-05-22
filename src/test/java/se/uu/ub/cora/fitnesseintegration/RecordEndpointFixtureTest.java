@@ -32,8 +32,6 @@ import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.client.CoraRestClientFactorySpy;
-import se.uu.ub.cora.client.CoraRestClientSpy;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class RecordEndpointFixtureTest {
@@ -58,31 +56,34 @@ public class RecordEndpointFixtureTest {
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
 		fixture.testReadRecord();
-		// assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
-		// assertEquals(httpHandlerFactorySpy.urlString,
-		// "http://localhost:8080/therest/rest/record/someType/someId");
-		// assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
-		// "someToken");
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/someType/someId");
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
+				"someToken");
 		// new from here
-		CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy) DependencyProvider
-				.getRestClientFactory();
-		assertEquals(restClientFactory.baseUrl, "http://localhost:8080/therest/rest/record/");
-		assertEquals(restClientFactory.authToken, "someToken");
-
-		CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
-		assertEquals(coraRestClientSpy.recordType, "someType");
-		assertEquals(coraRestClientSpy.recordId, "someId");
+		// CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy)
+		// DependencyProvider
+		// .getRestClientFactory();
+		// assertEquals(restClientFactory.baseUrl,
+		// "http://localhost:8080/therest/rest/record/");
+		// assertEquals(restClientFactory.authToken, "someToken");
+		//
+		// CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
+		// assertEquals(coraRestClientSpy.recordType, "someType");
+		// assertEquals(coraRestClientSpy.recordId, "someId");
 	}
 
 	@Test
 	public void testReadRecordOk() {
-		// assertEquals(fixture.testReadRecord(), "Everything ok");
+		assertEquals(fixture.testReadRecord(), "Everything ok");
 		assertEquals(fixture.getStatusType(), Response.Status.OK);
 		// new from here
-		CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy) DependencyProvider
-				.getRestClientFactory();
-		CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
-		assertEquals(fixture.testReadRecord(), "Answer from CoraRestClientSpy");
+		// CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy)
+		// DependencyProvider
+		// .getRestClientFactory();
+		// CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
+		// assertEquals(fixture.testReadRecord(), "Answer from CoraRestClientSpy");
 	}
 
 	@Test

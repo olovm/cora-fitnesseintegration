@@ -29,8 +29,6 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
-import se.uu.ub.cora.client.CoraRestClient;
-import se.uu.ub.cora.client.CoraRestClientFactory;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
@@ -119,12 +117,14 @@ public class RecordEndpointFixture {
 	}
 
 	public String testReadRecord() {
-		CoraRestClientFactory clientFactory = DependencyProvider.getRestClientFactory();
-		CoraRestClient restClient = clientFactory.factorUsingUrlAndAuthToken(baseUrl, authToken);
-		return restClient.readRecordAsJson(type, id);
+		// CoraRestClientFactory clientFactory =
+		// DependencyProvider.getRestClientFactory();
+		// CoraRestClient restClient = clientFactory.factorUsingUrlAndAuthToken(baseUrl,
+		// authToken);
+		// return restClient.readRecordAsJson(type, id);
 
-		// String url = baseUrl + type + "/" + id;
-		// return getResponseTextOrErrorTextFromUrl(url);
+		String url = baseUrl + type + "/" + id;
+		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	private String getResponseTextOrErrorTextFromUrl(String url) {
