@@ -135,8 +135,16 @@ public class RecordEndpointFixture {
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
 		HttpHandler httpHandler = factory.factor(url);
-		httpHandler.setRequestProperty(AUTH_TOKEN, authToken);
+		setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(httpHandler);
 		return httpHandler;
+	}
+
+	private void setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(HttpHandler httpHandler) {
+		if (null != authToken) {
+			httpHandler.setRequestProperty(AUTH_TOKEN, authToken);
+		} else {
+			httpHandler.setRequestProperty(AUTH_TOKEN, AuthTokenHolder.getAdminAuthToken());
+		}
 	}
 
 	public String testReadIncomingLinks() {
