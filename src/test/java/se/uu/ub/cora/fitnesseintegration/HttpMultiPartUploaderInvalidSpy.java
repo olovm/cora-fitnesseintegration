@@ -51,7 +51,7 @@ public class HttpMultiPartUploaderInvalidSpy implements HttpMultiPartUploader {
 
 	@Override
 	public String getErrorText() {
-		return "bad things happend";
+		return "bad things happened";
 	}
 
 	@Override

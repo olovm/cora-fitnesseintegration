@@ -20,12 +20,15 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
+import se.uu.ub.cora.client.CoraRestClientFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
+	private static CoraRestClientFactory coraRestClientFactory;
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -34,17 +37,42 @@ public final class DependencyProvider {
 
 	public static synchronized void setHttpHandlerFactoryClassName(
 			String httpHandlerFactoryClassName) {
-		Constructor<?> constructor;
 		try {
-			constructor = Class.forName(httpHandlerFactoryClassName).getConstructor();
-			httpHandlerFactory = (HttpHandlerFactory) constructor.newInstance();
+			tryToCreateHttpHandler(httpHandlerFactoryClassName);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	private static void tryToCreateHttpHandler(String httpHandlerFactoryClassName)
+			throws NoSuchMethodException, ClassNotFoundException, InstantiationException,
+			IllegalAccessException, InvocationTargetException {
+		Constructor<?> constructor = Class.forName(httpHandlerFactoryClassName).getConstructor();
+		httpHandlerFactory = (HttpHandlerFactory) constructor.newInstance();
+	}
+
 	public static HttpHandlerFactory getFactory() {
 		return httpHandlerFactory;
+	}
+
+	public static CoraRestClientFactory getRestClientFactory() {
+		return coraRestClientFactory;
+	}
+
+	public static void setCoraRestClientFactoryClassName(String coraRestClientFactoryClassName) {
+		try {
+			tryToCreateCoraRestClientFactory(coraRestClientFactoryClassName);
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static void tryToCreateCoraRestClientFactory(String coraRestClientFactoryClassName)
+			throws NoSuchMethodException, ClassNotFoundException, InstantiationException,
+			IllegalAccessException, InvocationTargetException {
+		Constructor<?> constructor = Class.forName(coraRestClientFactoryClassName)
+				.getConstructor();
+		coraRestClientFactory = (CoraRestClientFactory) constructor.newInstance();
 	}
 
 }

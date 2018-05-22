@@ -29,6 +29,8 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.client.CoraRestClient;
+import se.uu.ub.cora.client.CoraRestClientFactory;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
@@ -117,8 +119,12 @@ public class RecordEndpointFixture {
 	}
 
 	public String testReadRecord() {
-		String url = baseUrl + type + "/" + id;
-		return getResponseTextOrErrorTextFromUrl(url);
+		CoraRestClientFactory clientFactory = DependencyProvider.getRestClientFactory();
+		CoraRestClient restClient = clientFactory.factorUsingUrlAndAuthToken(baseUrl, authToken);
+		return restClient.readRecordAsJson(type, id);
+
+		// String url = baseUrl + type + "/" + id;
+		// return getResponseTextOrErrorTextFromUrl(url);
 	}
 
 	private String getResponseTextOrErrorTextFromUrl(String url) {
@@ -139,6 +145,9 @@ public class RecordEndpointFixture {
 		//
 		// String json = coraClient.readRecordAsJson(type, id);
 		//
+
+		// CoraRestClient restClient = CoraRestClientImp
+		// .usingHttpHandlerFactoryAndBaseUrlAndAuthToken(factory, url, authToken);
 
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");

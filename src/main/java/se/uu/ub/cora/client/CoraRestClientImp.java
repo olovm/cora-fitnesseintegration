@@ -25,17 +25,20 @@ import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class CoraRestClientImp implements CoraRestClient {
-
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl;
 	private String authToken;
 
-	public CoraRestClientImp(HttpHandlerFactory httpHandlerFactory, String baseUrl,
+	public static CoraRestClientImp usingHttpHandlerFactoryAndBaseUrlAndAuthToken(
+			HttpHandlerFactory httpHandlerFactory, String baseUrl, String authToken) {
+		return new CoraRestClientImp(httpHandlerFactory, baseUrl, authToken);
+	}
+
+	private CoraRestClientImp(HttpHandlerFactory httpHandlerFactory, String baseUrl,
 			String authToken) {
 		this.httpHandlerFactory = httpHandlerFactory;
 		this.baseUrl = baseUrl;
 		this.authToken = authToken;
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
@@ -45,15 +48,33 @@ public class CoraRestClientImp implements CoraRestClient {
 		httpHandler.setRequestMethod("GET");
 
 		Status statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
-		// if (statusType.equals(Response.Status.OK)) {
-		return httpHandler.getResponseText();
-		// }
+		if (statusType.equals(Response.Status.OK)) {
+			return httpHandler.getResponseText();
+		}
+		throw new CoraClientException("Could not read record of type: " + recordType + " and id: "
+				+ recordId + " from server using url: " + url + ". Returned error was: "
+				+ httpHandler.getErrorText());
 	}
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
 		HttpHandler httpHandler = httpHandlerFactory.factor(url);
 		httpHandler.setRequestProperty("authToken", authToken);
 		return httpHandler;
+	}
+
+	HttpHandlerFactory getHttpHandlerFactory() {
+		// needed for test
+		return httpHandlerFactory;
+	}
+
+	String getBaseUrl() {
+		// needed for test
+		return baseUrl;
+	}
+
+	String getAuthToken() {
+		// needed for test
+		return authToken;
 	}
 
 }

@@ -23,7 +23,9 @@ import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.Test;
 
-import se.uu.ub.cora.fitnesseintegration.DependencyProvider;
+import se.uu.ub.cora.client.CoraRestClientFactory;
+import se.uu.ub.cora.client.CoraRestClientFactoryImp;
+import se.uu.ub.cora.client.CoraRestClientFactorySpy;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactoryImp;
 
@@ -50,5 +52,26 @@ public class DependencyProviderTest {
 	@Test(expectedExceptions = RuntimeException.class)
 	public void testFactorHttpHandlerClassNameNotSet() {
 		DependencyProvider.setHttpHandlerFactoryClassName(null);
+	}
+
+	@Test
+	public void testGetRestClientFactory() throws Exception {
+		DependencyProvider
+				.setCoraRestClientFactoryClassName("se.uu.ub.cora.client.CoraRestClientFactoryImp");
+		CoraRestClientFactory clientFactory = DependencyProvider.getRestClientFactory();
+		assertTrue(clientFactory instanceof CoraRestClientFactoryImp);
+	}
+
+	@Test
+	public void testGetRestClientFactorySpy() throws Exception {
+		DependencyProvider
+				.setCoraRestClientFactoryClassName("se.uu.ub.cora.client.CoraRestClientFactorySpy");
+		CoraRestClientFactory clientFactory = DependencyProvider.getRestClientFactory();
+		assertTrue(clientFactory instanceof CoraRestClientFactorySpy);
+	}
+
+	@Test(expectedExceptions = RuntimeException.class)
+	public void testFactorRestClientClassNameNotSet() {
+		DependencyProvider.setCoraRestClientFactoryClassName(null);
 	}
 }

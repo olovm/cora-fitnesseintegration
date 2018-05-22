@@ -32,6 +32,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import se.uu.ub.cora.client.CoraRestClientFactorySpy;
+import se.uu.ub.cora.client.CoraRestClientSpy;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class RecordEndpointFixtureTest {
@@ -44,6 +46,8 @@ public class RecordEndpointFixtureTest {
 		AuthTokenHolder.setAdminAuthToken("someToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+		DependencyProvider
+				.setCoraRestClientFactoryClassName("se.uu.ub.cora.client.CoraRestClientFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getFactory();
 		fixture = new RecordEndpointFixture();
 	}
@@ -54,23 +58,37 @@ public class RecordEndpointFixtureTest {
 		fixture.setId("someId");
 		fixture.setAuthToken("someToken");
 		fixture.testReadRecord();
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
-		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId");
-		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
-				"someToken");
+		// assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+		// assertEquals(httpHandlerFactorySpy.urlString,
+		// "http://localhost:8080/therest/rest/record/someType/someId");
+		// assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
+		// "someToken");
+		// new from here
+		CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy) DependencyProvider
+				.getRestClientFactory();
+		assertEquals(restClientFactory.baseUrl, "http://localhost:8080/therest/rest/record/");
+		assertEquals(restClientFactory.authToken, "someToken");
+
+		CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
+		assertEquals(coraRestClientSpy.recordType, "someType");
+		assertEquals(coraRestClientSpy.recordId, "someId");
 	}
 
 	@Test
 	public void testReadRecordOk() {
-		assertEquals(fixture.testReadRecord(), "Everything ok");
+		// assertEquals(fixture.testReadRecord(), "Everything ok");
 		assertEquals(fixture.getStatusType(), Response.Status.OK);
+		// new from here
+		CoraRestClientFactorySpy restClientFactory = (CoraRestClientFactorySpy) DependencyProvider
+				.getRestClientFactory();
+		CoraRestClientSpy coraRestClientSpy = restClientFactory.coraRestClientSpy;
+		assertEquals(fixture.testReadRecord(), "Answer from CoraRestClientSpy");
 	}
 
 	@Test
 	public void testReadRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testReadRecord(), "bad things happend");
+		assertEquals(fixture.testReadRecord(), "bad things happened");
 	}
 
 	@Test
@@ -94,7 +112,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testReadIncomingLinksNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testReadIncomingLinks(), "bad things happend");
+		assertEquals(fixture.testReadIncomingLinks(), "bad things happened");
 	}
 
 	@Test
@@ -134,7 +152,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testReadRecordListNotOk() throws UnsupportedEncodingException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testReadRecordList(), "bad things happend");
+		assertEquals(fixture.testReadRecordList(), "bad things happened");
 	}
 
 	@Test
@@ -189,7 +207,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testCreateRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testCreateRecord(), "bad things happend");
+		assertEquals(fixture.testCreateRecord(), "bad things happened");
 	}
 
 	@Test
@@ -203,7 +221,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testCreateRecordCreatedTypeNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testCreateRecordCreatedType(), "bad things happend");
+		assertEquals(fixture.testCreateRecordCreatedType(), "bad things happened");
 	}
 
 	@Test
@@ -242,7 +260,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testUpdateRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testUpdateRecord(), "bad things happend");
+		assertEquals(fixture.testUpdateRecord(), "bad things happened");
 	}
 
 	@Test
@@ -267,7 +285,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testDeleteRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testDeleteRecord(), "bad things happend");
+		assertEquals(fixture.testDeleteRecord(), "bad things happened");
 	}
 
 	@Test
@@ -300,7 +318,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testUploadNotOk() throws ClientProtocolException, IOException {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testUpload(), "bad things happend");
+		assertEquals(fixture.testUpload(), "bad things happened");
 	}
 
 	@Test
@@ -331,7 +349,7 @@ public class RecordEndpointFixtureTest {
 	@Test
 	public void testDownloadNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.testDownload(), "bad things happend");
+		assertEquals(fixture.testDownload(), "bad things happened");
 	}
 
 	@Test
@@ -376,7 +394,7 @@ public class RecordEndpointFixtureTest {
 				+ "{\"name\":\"includePart\",\"children\":[{\"name\":\"text\",\"value\":\"\"}]}]}]}";
 		fixture.setJson(json);
 		fixture.testSearchRecord();
-		assertEquals(fixture.testReadRecordList(), "bad things happend");
+		assertEquals(fixture.testReadRecordList(), "bad things happened");
 	}
 
 	@Test

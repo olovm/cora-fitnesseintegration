@@ -77,7 +77,7 @@ public class AppTokenEndpointFixtureTest {
 	@Test
 	public void testCreateRecordNotOk() {
 		httpHandlerFactorySpy.changeFactoryToFactorInvalidHttpHandlers();
-		assertEquals(fixture.getAuthTokenForAppToken(), "bad things happend");
+		assertEquals(fixture.getAuthTokenForAppToken(), "bad things happened");
 	}
 
 	@Test
