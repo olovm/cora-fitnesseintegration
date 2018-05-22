@@ -264,15 +264,35 @@ public class RecordEndpointFixtureTest {
 
 		HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
 		assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
-		assertEquals(httpHandlerSpy.headerFields.get("authToken"), "someToken");
-		assertEquals(httpHandlerSpy.headerFields.size(), 2);
+		assertEquals(httpHandlerSpy.headerFields.size(), 1);
 
 		assertEquals(httpHandlerSpy.fieldName, "file");
 		assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
 
 		assertTrue(httpHandlerSpy.doneIsCalled);
 		assertEquals(httpHandlerFactorySpy.urlString,
-				"http://localhost:8080/therest/rest/record/someType/someId/master");
+				"http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someToken");
+		assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
+	}
+
+	@Test
+	public void testUploadDataForFactoryIsOkUsingDefaultAuthToken()
+			throws ClientProtocolException, IOException {
+		fixture.setType("someType");
+		fixture.setId("someId");
+		fixture.setFileName("correctFileAnswer");
+		fixture.testUpload();
+
+		HttpMultiPartUploaderSpy httpHandlerSpy = httpHandlerFactorySpy.httpMultiPartUploaderSpy;
+		assertEquals(httpHandlerSpy.headerFields.get("Accept"), "application/vnd.uub.record+json");
+		assertEquals(httpHandlerSpy.headerFields.size(), 1);
+
+		assertEquals(httpHandlerSpy.fieldName, "file");
+		assertEquals(httpHandlerSpy.fileName, "correctFileAnswer");
+
+		assertTrue(httpHandlerSpy.doneIsCalled);
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/someType/someId/master?authToken=someAdminToken");
 		assertEquals(fixture.getStreamId(), "soundBinary:23310456970967");
 	}
 

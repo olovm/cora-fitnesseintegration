@@ -293,10 +293,10 @@ public class RecordEndpointFixture {
 
 	public String testUpload() throws IOException {
 		String url = baseUrl + type + "/" + id + "/master";
+		url = addAuthTokenToUrl(url);
 
 		HttpMultiPartUploader httpHandler = factory.factorHttpMultiPartUploader(url);
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.addHeaderField(AUTH_TOKEN, authToken);
 		InputStream fakeStream = new ByteArrayInputStream(
 				"a string".getBytes(StandardCharsets.UTF_8));
 		httpHandler.addFilePart("file", fileName, fakeStream);
@@ -309,6 +309,16 @@ public class RecordEndpointFixture {
 			return responseText;
 		}
 		return httpHandler.getErrorText();
+	}
+
+	private String addAuthTokenToUrl(String urlIn) {
+		String url = urlIn;
+		if (authToken != null) {
+			url += "?" + AUTH_TOKEN + "=" + authToken;
+		} else {
+			url += "?" + AUTH_TOKEN + "=" + AuthTokenHolder.getAdminAuthToken();
+		}
+		return url;
 	}
 
 	private String tryToFindStreamId(String entity) {
