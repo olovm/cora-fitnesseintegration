@@ -43,7 +43,7 @@ public class RecordEndpointFixtureTest {
 	@BeforeMethod
 	public void setUp() {
 		SystemUrl.setUrl("http://localhost:8080/therest/");
-		AuthTokenHolder.setAdminAuthToken("someToken");
+		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
 		DependencyProvider
@@ -216,6 +216,8 @@ public class RecordEndpointFixtureTest {
 		fixture.setType("someRecordType");
 		String createdType = fixture.testCreateRecordCreatedType();
 		assertEquals(createdType, "someRecordType");
+		HttpHandlerSpy httpHandlerSpy = httpHandlerFactorySpy.httpHandlerSpy;
+		assertEquals(httpHandlerSpy.requestProperties.get("authToken"), "someAdminToken");
 	}
 
 	@Test
