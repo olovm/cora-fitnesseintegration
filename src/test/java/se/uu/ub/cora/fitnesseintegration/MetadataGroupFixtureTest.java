@@ -45,13 +45,6 @@ public class MetadataGroupFixtureTest {
 	private ClientDataGroup createTopLevelDataGroup() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("testStudentThesis");
 		topLevelDataGroup.addChild(ClientDataAtomic.withNameInDataAndValue("testTitle", "a title"));
-		// ClientDataGroup childReferences =
-		// ClientDataGroup.withNameInData("childReferences");
-		// ClientDataGroup childReference =
-		// createChildReferenceWithRepeatIdRecordTypeAndRecordId("0",
-		// "metadataGroup", "someRecordId", "0", "X");
-		// childReferences.addChild(childReference);
-		// topLevelDataGroup.addChild(childReferences);
 		return topLevelDataGroup;
 	}
 
@@ -149,68 +142,4 @@ public class MetadataGroupFixtureTest {
 		fixture.setChildNameInData("testTitle");
 		assertEquals(fixture.numberOfChildrenWithNameInData(), 1);
 	}
-
-	// @Test
-	// public void testRepeatMinIsCorrectSecondChild() {
-	// createAndAddSecondChild();
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someOtherRecordId");
-	// assertEquals(fixture.getRepeatMin(), "1");
-	// }
-	//
-	// @Test
-	// public void testRepeatMaxWithoutRecord() throws Exception {
-	// RecordHolder.setRecord(null);
-	// assertEquals(fixture.getRepeatMax(), "not found");
-	// }
-	//
-	// @Test
-	// public void testNoMatchingChildForRepeatMax() {
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("NOTsomeRecordId");
-	// assertEquals(fixture.getRepeatMax(), "not found");
-	// }
-	//
-	// @Test
-	// public void testRepeatMaxIsCorrect() {
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someRecordId");
-	// assertEquals(fixture.getRepeatMax(), "X");
-	// }
-	//
-	// @Test
-	// public void testRepeatMaxIsCorrectSecondChild() {
-	// createAndAddSecondChild();
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someOtherRecordId");
-	// assertEquals(fixture.getRepeatMax(), "3");
-	// }
-	//
-	// @Test
-	// public void testMoreThanOneTestOnSameRecord() {
-	// createAndAddSecondChild();
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someRecordId");
-	// assertEquals(fixture.getRepeatMin(), "0");
-	// assertEquals(fixture.getRepeatMax(), "X");
-	//
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someOtherRecordId");
-	// assertEquals(fixture.getRepeatMin(), "1");
-	// assertEquals(fixture.getRepeatMax(), "3");
-	// }
-	//
-	// @Test
-	// public void testMoreThanOneTestOnSameRecordNoMatchSecondLink() {
-	// createAndAddSecondChild();
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("someRecordId");
-	// assertEquals(fixture.getRepeatMin(), "0");
-	// assertEquals(fixture.getRepeatMax(), "X");
-	//
-	// fixture.setLinkedRecordType("metadataGroup");
-	// fixture.setLinkedRecordId("NOTsomeOtherRecordId");
-	// assertEquals(fixture.getRepeatMin(), "not found");
-	// assertEquals(fixture.getRepeatMax(), "not found");
-	// }
 }
