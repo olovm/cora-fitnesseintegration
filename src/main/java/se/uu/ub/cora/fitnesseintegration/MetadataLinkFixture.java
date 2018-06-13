@@ -26,8 +26,8 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 
 public class MetadataLinkFixture {
 
-	private String linkedRecordType;
-	private String linkedRecordId;
+	protected String linkedRecordType;
+	protected String linkedRecordId;
 	private List<ClientDataGroup> childReferenceList = new ArrayList<>();
 	private ClientDataGroup matchingChildReference;
 
@@ -76,23 +76,26 @@ public class MetadataLinkFixture {
 
 	private void setMatchingChildReference() {
 		for (ClientDataGroup childReference : childReferenceList) {
-			setChildRefrenceIfMatchingTypeAndId(childReference);
+			setChildReferenceIfMatchingTypeAndId(childReference);
 		}
 	}
 
-	private void setChildRefrenceIfMatchingTypeAndId(ClientDataGroup childReference) {
-		String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
-				"linkedRecordType");
-		String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
-				"linkedRecordId");
-
-		if (childLinkedRecordId.equals(linkedRecordId)
-				&& childLinkedRecordType.equals(linkedRecordType)) {
+	private void setChildReferenceIfMatchingTypeAndId(ClientDataGroup childReference) {
+		if (childReferenceMatchesTypeAndId(childReference)) {
 			matchingChildReference = childReference;
 		}
 	}
 
-	private String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
+	protected boolean childReferenceMatchesTypeAndId(ClientDataGroup childReference) {
+		String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
+				"linkedRecordType");
+		String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
+				"linkedRecordId");
+		return childLinkedRecordId.equals(linkedRecordId)
+				&& childLinkedRecordType.equals(linkedRecordType);
+	}
+
+	protected String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
 			String childNameInData) {
 		ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
 		return ref.getFirstAtomicValueWithNameInData(childNameInData);
