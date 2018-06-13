@@ -17,12 +17,12 @@ public class MetadataGroupFixture {
 	}
 
 	public int numberOfChildrenWithNameInData() {
-		int numOfMatchildChildren = 0;
+		int numOfMatchingChildren = 0;
 		ClientDataRecord record = RecordHolder.getRecord();
 		if (topLevelGroupExists(record)) {
-			numOfMatchildChildren = findNumOfMatchingChildren(record);
+			numOfMatchingChildren = findNumOfMatchingChildren(record);
 		}
-		return numOfMatchildChildren;
+		return numOfMatchingChildren;
 	}
 
 	private int findNumOfMatchingChildren(ClientDataRecord record) {
