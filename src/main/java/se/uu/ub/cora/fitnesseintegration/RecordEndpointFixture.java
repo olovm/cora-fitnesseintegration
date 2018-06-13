@@ -25,6 +25,8 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
@@ -377,6 +379,20 @@ public class RecordEndpointFixture {
 		ClientDataRecord clientDataRecord = converter.toInstance();
 
 		RecordHolder.setRecord(clientDataRecord);
+	}
+
+	public String testReadRecordShortenedUrlsAndOnlyFirstUpdated() {
+		String url = baseUrl + type + "/" + id;
+
+		String responseText = getResponseTextOrErrorTextFromUrl(url);
+		String replaceAll = shortenUrls(responseText);
+		return replaceAll;
+	}
+
+	protected String shortenUrls(String responseText) {
+		Pattern urlPattern = Pattern.compile("(\"url\":\")(http.*)(/.*/.*/.*/.*?\")");
+		Matcher urlMatcher = urlPattern.matcher(responseText);
+		return urlMatcher.replaceAll("$1...$3");
 	}
 
 }

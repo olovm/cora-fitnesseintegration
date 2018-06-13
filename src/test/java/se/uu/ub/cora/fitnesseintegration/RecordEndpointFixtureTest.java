@@ -56,6 +56,62 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
+	public void testReadRecordShortenedUrlsAndOnlyFirstUpdatedShortenedUrl() {
+		fixture.setType("url");
+		fixture.setId("toshorten");
+		assertEquals(fixture.testReadRecordShortenedUrlsAndOnlyFirstUpdated(),
+				"{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
+						+ "\"url\":\".../record/recordType/place\","
+						+ "\"accept\":\"application/vnd.uub.record+json\"}}");
+		assertEquals(fixture.getStatusType(), Response.Status.OK);
+	}
+
+	@Test
+	public void testReadRecordShortenedUrlsAndOnlyFirstUpdated() {
+		fixture.setType("place");
+		fixture.setId("alvin-place:22");
+		// assertEquals(fixture.testReadRecord(), "Everything ok");
+		assertEquals(fixture.testReadRecordShortenedUrlsAndOnlyFirstUpdated(),
+				"{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\","
+						+ "\"value\":\"place\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
+						+ "\"url\":\".../record/recordType/place\",\"accept\":\"application/vnd.uub.record+json\"}}"
+						+ ",\"name\":\"type\"},{\"name\":\"id\",\"value\":\"alvin-place:22\"},{\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"system\"},{\"name\":\"linkedRecordId\","
+						+ "\"value\":\"alvin\"}],\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
+						+ "\"url\":\".../record/system/alvin\",\"accept\":\"application/vnd.uub.record+json\"}},"
+						+ "\"name\":\"dataDivider\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"user\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"12345\"}],\"actionLinks\":{\"read\":"
+						+ "{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\".../record/user/12345\","
+						+ "\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"createdBy\"},"
+						+ "{\"name\":\"tsCreated\",\"value\":\"2014-12-18 20:20:38.346\"},{\"repeatId\":\"0\","
+						+ "\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"user\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"12345\"}],\"actionLinks\":{\"read\":"
+						+ "{\"requestMethod\":\"GET\",\"rel\":\"read\",\"url\":\".../record/user/12345\","
+						+ "\"accept\":\"application/vnd.uub.record+json\"}},\"name\":\"updatedBy\"},"
+						+ "{\"name\":\"tsUpdated\",\"value\":\"2014-12-18 20:20:38.346\"}],\"name\":\"updated\"}],"
+						+ "\"name\":\"recordInfo\"},{\"children\":[{\"children\":[{\"name\":\"value\","
+						+ "\"value\":\"Linköping\"}],\"name\":\"namePart\",\"attributes\":{\"type\":\"defaultName\"}}],"
+						+ "\"name\":\"name\",\"attributes\":{\"type\":\"authorized\"}},{\"children\":["
+						+ "{\"name\":\"latitude\",\"value\":\"58.42\"},{\"name\":\"longitude\",\"value\":\"15.62\"}],"
+						+ "\"name\":\"coordinates\"},{\"name\":\"country\",\"value\":\"SE\"}],\"name\":\"authority\"},"
+						+ "\"actionLinks\":{\"read\":{\"requestMethod\":\"GET\",\"rel\":\"read\","
+						+ "\"url\":\".../record/place/alvin-place:22\",\"accept\":\"application/vnd.uub.record+json\"},"
+						+ "\"update\":{\"requestMethod\":\"POST\",\"rel\":\"update\","
+						+ "\"contentType\":\"application/vnd.uub.record+json\","
+						+ "\"url\":\".../record/place/alvin-place:22\",\"accept\":\"application/vnd.uub.record+json\"},"
+						+ "\"index\":{\"requestMethod\":\"POST\",\"rel\":\"index\",\"body\":{\"children\":["
+						+ "{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"place\"}],\"name\":\"recordType\"},"
+						+ "{\"name\":\"recordId\",\"value\":\"alvin-place:22\"},{\"name\":\"type\",\"value\":\"index\"}],"
+						+ "\"name\":\"workOrder\"},\"contentType\":\"application/vnd.uub.record+json\","
+						+ "\"url\":\".../record/workOrder/\",\"accept\":\"application/vnd.uub.record+json\"},"
+						+ "\"delete\":{\"requestMethod\":\"DELETE\",\"rel\":\"delete\","
+						+ "\"url\":\".../record/place/alvin-place:22\"}}}}");
+		assertEquals(fixture.getStatusType(), Response.Status.OK);
+	}
+
+	@Test
 	public void testReadIncomingLinksDataForFactoryIsOk() {
 		fixture.setType("someType");
 		fixture.setId("someId");
