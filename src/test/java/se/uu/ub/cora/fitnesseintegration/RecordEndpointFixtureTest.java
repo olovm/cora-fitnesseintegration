@@ -67,10 +67,28 @@ public class RecordEndpointFixtureTest {
 	}
 
 	@Test
+	public void testReadRecordShortenedUrlsAndOnlyFirstUpdatedOnlyFirst() {
+		fixture.setType("updated");
+		fixture.setId("morethanone");
+		assertEquals(fixture.testReadRecordShortenedUrlsAndOnlyFirstUpdated(),
+				"{\"children\":[{\"children\":[{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"place\"}],\"name\":\"type\"},{\"name\":\"id\","
+						+ "\"value\":\"alvin-place:24\"},{\"children\":[{\"name\":\"linkedRecordType\",\"value\":\"system\"},"
+						+ "{\"name\":\"linkedRecordId\",\"value\":\"alvin\"}],\"name\":\"dataDivider\"},{\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"user\"},{\"name\":\"linkedRecordId\","
+						+ "\"value\":\"12345\"}],\"name\":\"createdBy\"},{\"name\":\"tsCreated\","
+						+ "\"value\":\"2014-12-18 22:16:44.623\"},{\"repeatId\":\"0\",\"children\":[{\"children\":["
+						+ "{\"name\":\"linkedRecordType\",\"value\":\"user\"},{\"name\":\"linkedRecordId\","
+						+ "\"value\":\"12345\"}],\"name\":\"updatedBy\"},{\"name\":\"tsUpdated\","
+						+ "\"value\":\"2014-12-18 22:16:44.623\"}],\"name\":\"updated\"}],\"name\":\"recordInfo\"}],"
+						+ "\"name\":\"authority\",\"attributes\":{\"type\":\"place\"}}");
+		assertEquals(fixture.getStatusType(), Response.Status.OK);
+	}
+
+	@Test
 	public void testReadRecordShortenedUrlsAndOnlyFirstUpdated() {
 		fixture.setType("place");
 		fixture.setId("alvin-place:22");
-		// assertEquals(fixture.testReadRecord(), "Everything ok");
 		assertEquals(fixture.testReadRecordShortenedUrlsAndOnlyFirstUpdated(),
 				"{\"record\":{\"data\":{\"children\":[{\"children\":[{\"children\":["
 						+ "{\"name\":\"linkedRecordType\",\"value\":\"recordType\"},{\"name\":\"linkedRecordId\","

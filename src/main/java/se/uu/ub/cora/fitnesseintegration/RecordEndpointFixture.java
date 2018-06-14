@@ -31,7 +31,12 @@ import java.util.regex.Pattern;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataGroupToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverter;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactory;
+import se.uu.ub.cora.clientdata.converter.javatojson.DataToJsonConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
@@ -385,14 +390,60 @@ public class RecordEndpointFixture {
 		String url = baseUrl + type + "/" + id;
 
 		String responseText = getResponseTextOrErrorTextFromUrl(url);
-		String replaceAll = shortenUrls(responseText);
-		return replaceAll;
+
+		// String replaceAll = shortenUrls(responseText);
+		// String x = removeAllButFirstUpdated(replaceAll);
+		String x2 = removeAllButFirstUpdated(responseText);
+		String x = shortenUrls(x2);
+		return x;
 	}
 
 	protected String shortenUrls(String responseText) {
 		Pattern urlPattern = Pattern.compile("(\"url\":\")(http.*)(/.*/.*/.*/.*?\")");
 		Matcher urlMatcher = urlPattern.matcher(responseText);
 		return urlMatcher.replaceAll("$1...$3");
+	}
+
+	private String removeAllButFirstUpdated(String responseText) {
+		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
+
+		JsonToDataConverterFactory recordConverterFactory = new JsonToDataConverterFactoryImp();
+		JsonToDataRecordConverter converter = JsonToDataRecordConverter
+				.forJsonObjectUsingConverterFactory(recordJsonObject, recordConverterFactory);
+		ClientDataRecord clientDataRecord = converter.toInstance();
+
+		ClientDataGroup clientDataGroup = clientDataRecord.getClientDataGroup();
+		// clientDataGroup.removeFirstChildWithNameInData(childNameInData);
+		ClientDataRecord newRecord = ClientDataRecord.withClientDataGroup(clientDataGroup);
+		newRecord.setActionLinks(clientDataRecord.getActionLinks());
+
+		DataToJsonConverterFactory f = new DataToJsonConverterFactoryImp();
+		DataToJsonConverter c = DataGroupToJsonConverter.usingJsonFactoryForClientDataGroup(f,
+				newRecord);
+		// DataGroupToJsonConverter.usingJsonFactoryForClientDataGroup(f,
+		// // clientDataRecord
+
+		// Pattern urlPattern =
+		// Pattern.compile("(\"url\":\")(http.*)(/.*/.*/.*/.*?\")");
+		Pattern urlPattern = Pattern.compile("(\\{\"repeatId\".*?\"name\":\"updated\"\\}),{0,1}");
+		Matcher urlMatcher = urlPattern.matcher(responseText);
+		// return urlMatcher.replaceAll("$1...$3");
+		StringBuffer sb = new StringBuffer();
+		boolean first = true;
+		while (urlMatcher.find()) {
+			if (first) {
+				urlMatcher.appendReplacement(sb, "$1");
+			} else {
+				urlMatcher.appendReplacement(sb, "");
+			}
+			first = false;
+		}
+		urlMatcher.appendTail(sb);
+		return sb.toString();
+		// urlMatcher.find();
+		// urlMatcher.find();
+		// urlMatcher.find();
+		// return urlMatcher.group(0);
 	}
 
 }
