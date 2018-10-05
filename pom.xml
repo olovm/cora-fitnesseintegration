@@ -23,20 +23,20 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>0.6-SNAPSHOT</version>
+		<version>0.7-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>fitnesseintegration</artifactId>
 	<packaging>jar</packaging>
-	<version>0.1-SNAPSHOT</version>
+	<version>0.2-SNAPSHOT</version>
 	<name>Fitnesse integration</name>
 
 	<properties>
-		<json.version>0.3-SNAPSHOT</json.version>
-		<httphandler.version>0.3-SNAPSHOT</httphandler.version>
-		<cora-clientdata.version>0.1-SNAPSHOT</cora-clientdata.version>
-		<javax.ws.rs.version>2.0.1</javax.ws.rs.version>
-		<fitnesse.version>20161106</fitnesse.version>
+		<json.version>0.4-SNAPSHOT</json.version>
+		<httphandler.version>0.4-SNAPSHOT</httphandler.version>
+		<cora-clientdata.version>0.2-SNAPSHOT</cora-clientdata.version>
+		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
+		<fitnesse.version>20180127</fitnesse.version>
 	</properties>
 
 	<scm>
@@ -44,21 +44,6 @@
 		<developerConnection>scm:git:https://github.com/lsu-ub-uu/cora-fitnesseintegration.git</developerConnection>
 		<url>https://github.com/lsu-ub-uu/cora-fitnesseintegration.git</url>
 	</scm>
-
-	<repositories>
-		<repository>
-			<id>maven-public</id>
-			<name>LSU Nexus Repository</name>
-			<url>http://epc.ub.uu.se/nexus/repository/maven-public/</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<updatePolicy>daily</updatePolicy>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<dependency>
@@ -107,13 +92,13 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
-			<version>4.5.2</version>
+			<version>4.5.6</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
