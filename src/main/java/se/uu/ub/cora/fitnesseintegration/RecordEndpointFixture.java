@@ -22,7 +22,6 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
@@ -57,7 +56,7 @@ public class RecordEndpointFixture {
 	private String fileName;
 	private String streamId;
 	private String resourceName;
-	private String contentLenght;
+	private String contentLength;
 	private String contentDisposition;
 	private String authToken;
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
@@ -109,7 +108,7 @@ public class RecordEndpointFixture {
 	}
 
 	public String getContentLength() {
-		return contentLenght;
+		return contentLength;
 	}
 
 	public void setAuthToken(String authToken) {
@@ -152,10 +151,10 @@ public class RecordEndpointFixture {
 		return getResponseTextOrErrorTextFromUrl(url);
 	}
 
-	public String testReadRecordList() throws UnsupportedEncodingException {
+	public String testReadRecordList() {
 		String url = baseUrl + type;
-		if (json != null) {
-			url += "?filter=" + URLEncoder.encode(json, "UTF-8");
+		if (json != null && !"".equals(json)) {
+			url += "?filter=" + URLEncoder.encode(json, StandardCharsets.UTF_8);
 		}
 		return getResponseTextOrErrorTextFromUrl(url);
 	}
@@ -342,7 +341,7 @@ public class RecordEndpointFixture {
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 		if (statusType.equals(Response.Status.OK)) {
 			String responseText = httpHandler.getResponseText();
-			contentLenght = httpHandler.getHeaderField("Content-Length");
+			contentLength = httpHandler.getHeaderField("Content-Length");
 			contentDisposition = httpHandler.getHeaderField("Content-Disposition");
 			streamId = tryToFindStreamId(responseText);
 			return responseText;
@@ -354,9 +353,9 @@ public class RecordEndpointFixture {
 		return token;
 	}
 
-	public String testSearchRecord() throws UnsupportedEncodingException {
+	public String testSearchRecord() {
 		String url = baseUrl + "searchResult" + "/" + searchId + "/";
-		url += "?searchData=" + URLEncoder.encode(json, "UTF-8");
+		url += "?searchData=" + URLEncoder.encode(json, StandardCharsets.UTF_8);
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("GET");
 
