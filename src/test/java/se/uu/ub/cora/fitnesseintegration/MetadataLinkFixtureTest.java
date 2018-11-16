@@ -19,6 +19,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -31,6 +32,7 @@ public class MetadataLinkFixtureTest {
 
 	MetadataLinkFixture fixture;
 	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 
 	@BeforeMethod
 	public void setUp() {
@@ -41,6 +43,8 @@ public class MetadataLinkFixtureTest {
 		DependencyProvider.setJsonToDataFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
 		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+		jsonToDataConverterFactory = (JsonToDataConverterFactorySpy) DependencyProvider
+				.getJsonToDataConverterFactory();
 		fixture = new MetadataLinkFixture();
 
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
@@ -85,6 +89,8 @@ public class MetadataLinkFixtureTest {
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
 				"someToken");
 		String nameInData = fixture.getNameInData();
+		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
+		assertTrue(converterSpy.toInstanceWasCalled);
 		assertEquals(nameInData, "includePart");
 	}
 

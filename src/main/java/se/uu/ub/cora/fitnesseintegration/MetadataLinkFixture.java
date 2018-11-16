@@ -23,6 +23,8 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
@@ -35,9 +37,11 @@ public class MetadataLinkFixture {
 	private HttpHandlerFactory httpHandlerFactory;
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
 	private String authToken;
+	private JsonToDataConverterFactory jsonToDataConverterFactory;
 
 	public MetadataLinkFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
+		jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
 	}
 
 	public void setAuthToken(String authToken) {
@@ -159,6 +163,8 @@ public class MetadataLinkFixture {
 		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(childLinkedRecordType,
 				childLinkedRecordId);
 		String responseText = httpHandler.getResponseText();
+		JsonToDataConverter createForJsonString = jsonToDataConverterFactory
+				.createForJsonString(responseText);
 
 		return responseText;
 

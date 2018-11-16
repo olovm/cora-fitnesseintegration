@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Uppsala University Library
+ * Copyright 2018 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -26,6 +26,8 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory {
 
+	public JsonToDataConverterSpy factored;
+
 	@Override
 	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
 		// TODO Auto-generated method stub
@@ -34,8 +36,8 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 
 	@Override
 	public JsonToDataConverter createForJsonString(String json) {
-		// TODO Auto-generated method stub
-		return null;
+		factored = new JsonToDataConverterSpy();
+		return factored;
 	}
 
 	@Override
