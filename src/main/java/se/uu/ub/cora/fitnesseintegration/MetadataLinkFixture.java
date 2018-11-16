@@ -23,6 +23,8 @@ import java.util.List;
 
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.httphandler.HttpHandler;
+import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public class MetadataLinkFixture {
 
@@ -30,6 +32,17 @@ public class MetadataLinkFixture {
 	protected String linkedRecordId;
 	private List<ClientDataGroup> childReferenceList = new ArrayList<>();
 	private ClientDataGroup matchingChildReference;
+	private HttpHandlerFactory httpHandlerFactory;
+	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
+	private String authToken;
+
+	public MetadataLinkFixture() {
+		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
+	}
+
+	public void setAuthToken(String authToken) {
+		this.authToken = authToken;
+	}
 
 	public void setLinkedRecordType(String linkedRecordType) {
 		this.linkedRecordType = linkedRecordType;
@@ -42,24 +55,31 @@ public class MetadataLinkFixture {
 	}
 
 	private void tryToSetMatchingChildReference() {
-		if (linkedRecordType != null && linkedRecordId != null) {
+		if (linkedRecordTypeAndRecordIdExist()) {
 			resetData();
-			tryToSetChildReferenceList();
+			possiblySetChildReferenceList();
 			setMatchingChildReference();
 		}
+	}
+
+	private boolean linkedRecordTypeAndRecordIdExist() {
+		return linkedRecordType != null && linkedRecordId != null;
 	}
 
 	private void resetData() {
 		matchingChildReference = null;
 	}
 
-	private void tryToSetChildReferenceList() {
+	private void possiblySetChildReferenceList() {
 		ClientDataRecord record = RecordHolder.getRecord();
-		ClientDataGroup topLevelDataGroup;
-		if (null != record && record.getClientDataGroup() != null) {
-			topLevelDataGroup = record.getClientDataGroup();
+		if (recordContainsDataGroup(record)) {
+			ClientDataGroup topLevelDataGroup = record.getClientDataGroup();
 			setChildReferenceList(topLevelDataGroup);
 		}
+	}
+
+	private boolean recordContainsDataGroup(ClientDataRecord record) {
+		return null != record && record.getClientDataGroup() != null;
 	}
 
 	private void setChildReferenceList(ClientDataGroup topLevelDataGroup) {
@@ -81,21 +101,33 @@ public class MetadataLinkFixture {
 	}
 
 	private void setChildReferenceIfMatchingTypeAndId(ClientDataGroup childReference) {
-		if (childReferenceMatchesTypeAndId(childReference)) {
+		String childLinkedRecordType = extractValueFromReferenceUsingNameInData(childReference,
+				"linkedRecordType");
+		String childLinkedRecordId = extractValueFromReferenceUsingNameInData(childReference,
+				"linkedRecordId");
+
+		if (childReferenceMatchesTypeAndId(childLinkedRecordType, childLinkedRecordId)) {
 			matchingChildReference = childReference;
+			setUpHttpHandlerForReadingChildReference(childLinkedRecordType, childLinkedRecordId);
 		}
 	}
 
-	protected boolean childReferenceMatchesTypeAndId(ClientDataGroup childReference) {
-		String childLinkedRecordType = extractValueFromReferenceByNameInData(childReference,
-				"linkedRecordType");
-		String childLinkedRecordId = extractValueFromReferenceByNameInData(childReference,
-				"linkedRecordId");
+	private HttpHandler setUpHttpHandlerForReadingChildReference(String childLinkedRecordType,
+			String childLinkedRecordId) {
+		String url = baseUrl + childLinkedRecordType + "/" + childLinkedRecordId;
+		HttpHandler httpHandler = httpHandlerFactory.factor(url);
+		httpHandler.setRequestMethod("GET");
+		httpHandler.setRequestProperty("authToken", authToken);
+		return httpHandler;
+	}
+
+	protected boolean childReferenceMatchesTypeAndId(String childLinkedRecordType,
+			String childLinkedRecordId) {
 		return childLinkedRecordId.equals(linkedRecordId)
 				&& childLinkedRecordType.equals(linkedRecordType);
 	}
 
-	protected String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
+	protected String extractValueFromReferenceUsingNameInData(ClientDataGroup childReference,
 			String childNameInData) {
 		ClientDataGroup ref = childReference.getFirstGroupWithNameInData("ref");
 		return ref.getFirstAtomicValueWithNameInData(childNameInData);
@@ -114,6 +146,22 @@ public class MetadataLinkFixture {
 
 	public String getRepeatMax() {
 		return getAtomicValueByNameInDataFromMatchingChild("repeatMax");
+	}
+
+	public String getNameInData() {
+		if (null == matchingChildReference) {
+			return "not found";
+		}
+		String childLinkedRecordType = extractValueFromReferenceUsingNameInData(
+				matchingChildReference, "linkedRecordType");
+		String childLinkedRecordId = extractValueFromReferenceUsingNameInData(
+				matchingChildReference, "linkedRecordId");
+		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(childLinkedRecordType,
+				childLinkedRecordId);
+		String responseText = httpHandler.getResponseText();
+
+		return responseText;
+
 	}
 
 }

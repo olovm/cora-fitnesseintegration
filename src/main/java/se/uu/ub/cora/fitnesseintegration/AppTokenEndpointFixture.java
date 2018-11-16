@@ -18,7 +18,7 @@ public class AppTokenEndpointFixture {
 	private String authTokenToLogOut;
 
 	public AppTokenEndpointFixture() {
-		factory = DependencyProvider.getFactory();
+		factory = DependencyProvider.getHttpHandlerFactory();
 	}
 
 	public void setAppToken(String token) {

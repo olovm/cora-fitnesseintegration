@@ -30,9 +30,17 @@ import se.uu.ub.cora.clientdata.ClientDataRecord;
 public class MetadataLinkFixtureTest {
 
 	MetadataLinkFixture fixture;
+	private HttpHandlerFactorySpy httpHandlerFactorySpy;
 
 	@BeforeMethod
 	public void setUp() {
+		SystemUrl.setUrl("http://localhost:8080/therest/");
+		AuthTokenHolder.setAdminAuthToken("someAdminToken");
+		DependencyProvider.setHttpHandlerFactoryClassName(
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+		DependencyProvider.setJsonToDataFactoryClassName(
+				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
+		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
 		fixture = new MetadataLinkFixture();
 
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
@@ -66,7 +74,22 @@ public class MetadataLinkFixtureTest {
 	}
 
 	@Test
-	public void testLinkIsNotPresent() {
+	public void testHttpHandler() {
+		fixture.setAuthToken("someToken");
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/metadataGroup/someRecordId");
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
+				"someToken");
+		String nameInData = fixture.getNameInData();
+		assertEquals(nameInData, "includePart");
+	}
+
+	@Test
+	public void testNoMatchingChild() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		RecordHolder.setRecord(record);
@@ -76,7 +99,7 @@ public class MetadataLinkFixtureTest {
 	}
 
 	@Test
-	public void testNoTopLevelDatagroup() {
+	public void testNoTopLevelDatagroupInRecord() {
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
 		RecordHolder.setRecord(record);
 		fixture.setLinkedRecordId("someRecordId");

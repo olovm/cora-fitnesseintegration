@@ -61,11 +61,11 @@ public class RecordEndpointFixture {
 	private String contentDisposition;
 	private String authToken;
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
-	private HttpHandlerFactory factory;
+	private HttpHandlerFactory httpHandlerFactory;
 	private String token;
 
 	public RecordEndpointFixture() {
-		factory = DependencyProvider.getFactory();
+		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
 	}
 
 	public void setType(String type) {
@@ -134,7 +134,7 @@ public class RecordEndpointFixture {
 	}
 
 	private HttpHandler createHttpHandlerWithAuthTokenAndUrl(String url) {
-		HttpHandler httpHandler = factory.factor(url);
+		HttpHandler httpHandler = httpHandlerFactory.factor(url);
 		setAuthTokenInHeaderAsAuthTokenOrAdminAuthToken(httpHandler);
 		return httpHandler;
 	}
@@ -295,7 +295,7 @@ public class RecordEndpointFixture {
 		String url = baseUrl + type + "/" + id + "/master";
 		url = addAuthTokenToUrl(url);
 
-		HttpMultiPartUploader httpHandler = factory.factorHttpMultiPartUploader(url);
+		HttpMultiPartUploader httpHandler = httpHandlerFactory.factorHttpMultiPartUploader(url);
 		httpHandler.addHeaderField(ACCEPT, APPLICATION_UUB_RECORD_JSON);
 		InputStream fakeStream = new ByteArrayInputStream(
 				"a string".getBytes(StandardCharsets.UTF_8));
