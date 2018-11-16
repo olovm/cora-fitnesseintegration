@@ -21,6 +21,7 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
+import se.uu.ub.cora.clientdata.ClientDataElement;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
@@ -163,10 +164,11 @@ public class MetadataLinkFixture {
 		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(childLinkedRecordType,
 				childLinkedRecordId);
 		String responseText = httpHandler.getResponseText();
-		JsonToDataConverter createForJsonString = jsonToDataConverterFactory
+		JsonToDataConverter converter = jsonToDataConverterFactory
 				.createForJsonString(responseText);
+		ClientDataElement dataElement = converter.toInstance();
 
-		return responseText;
+		return dataElement.getNameInData();
 
 	}
 

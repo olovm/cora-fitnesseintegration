@@ -36,7 +36,7 @@ public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory
 
 	@Override
 	public JsonToDataConverter createForJsonString(String json) {
-		factored = new JsonToDataConverterSpy();
+		factored = new JsonToDataConverterSpy(json);
 		return factored;
 	}
 

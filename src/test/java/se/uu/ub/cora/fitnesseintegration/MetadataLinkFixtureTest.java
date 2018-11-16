@@ -91,6 +91,7 @@ public class MetadataLinkFixtureTest {
 		String nameInData = fixture.getNameInData();
 		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
 		assertTrue(converterSpy.toInstanceWasCalled);
+		// assertEquals(converterSpy.json, );
 		assertEquals(nameInData, "includePart");
 	}
 
