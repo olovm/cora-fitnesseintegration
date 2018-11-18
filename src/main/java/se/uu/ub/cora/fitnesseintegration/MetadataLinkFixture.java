@@ -21,13 +21,17 @@ package se.uu.ub.cora.fitnesseintegration;
 import java.util.ArrayList;
 import java.util.List;
 
-import se.uu.ub.cora.clientdata.ClientDataElement;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
+import se.uu.ub.cora.clientdata.RecordIdentifier;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
+import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonParser;
+import se.uu.ub.cora.json.parser.JsonValue;
+import se.uu.ub.cora.json.parser.org.OrgJsonParser;
 
 public class MetadataLinkFixture {
 
@@ -39,6 +43,7 @@ public class MetadataLinkFixture {
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
 	private String authToken;
 	private JsonToDataConverterFactory jsonToDataConverterFactory;
+	private JsonToDataRecordConverter recordConverter;
 
 	public MetadataLinkFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
@@ -157,19 +162,52 @@ public class MetadataLinkFixture {
 		if (null == matchingChildReference) {
 			return "not found";
 		}
+		return getNameInDataFromMatchingChildReference();
+
+	}
+
+	private String getNameInDataFromMatchingChildReference() {
+		RecordIdentifier identfier = getChildReferenceAsRecordIdentifier();
+		String responseText = readRecordAsJson(identfier);
+		return getNameInDataFromConvertedJson(responseText);
+	}
+
+	private RecordIdentifier getChildReferenceAsRecordIdentifier() {
 		String childLinkedRecordType = extractValueFromReferenceUsingNameInData(
 				matchingChildReference, "linkedRecordType");
 		String childLinkedRecordId = extractValueFromReferenceUsingNameInData(
 				matchingChildReference, "linkedRecordId");
-		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(childLinkedRecordType,
-				childLinkedRecordId);
-		String responseText = httpHandler.getResponseText();
-		JsonToDataConverter converter = jsonToDataConverterFactory
-				.createForJsonString(responseText);
-		ClientDataElement dataElement = converter.toInstance();
 
-		return dataElement.getNameInData();
+		return RecordIdentifier.usingTypeAndId(childLinkedRecordType, childLinkedRecordId);
+	}
 
+	private String readRecordAsJson(RecordIdentifier identfier) {
+		HttpHandler httpHandler = setUpHttpHandlerForReadingChildReference(identfier.type,
+				identfier.id);
+		return httpHandler.getResponseText();
+	}
+
+	private String getNameInDataFromConvertedJson(String responseText) {
+		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
+		recordConverter = JsonToDataRecordConverter
+				.forJsonObjectUsingConverterFactory(recordJsonObject, jsonToDataConverterFactory);
+		ClientDataRecord clientDataRecord = recordConverter.toInstance();
+		return getNameInDataFromDataGroupInRecord(clientDataRecord);
+	}
+
+	private String getNameInDataFromDataGroupInRecord(ClientDataRecord clientDataRecord) {
+		ClientDataGroup dataElement = clientDataRecord.getClientDataGroup();
+		return dataElement.getFirstAtomicValueWithNameInData("nameInData");
+	}
+
+	private JsonObject createJsonObjectFromResponseText(String responseText) {
+		JsonParser jsonParser = new OrgJsonParser();
+		JsonValue jsonValue = jsonParser.parseString(responseText);
+		return (JsonObject) jsonValue;
+	}
+
+	public JsonToDataRecordConverter getJsonToRecordDataConverter() {
+		return recordConverter;
 	}
 
 }

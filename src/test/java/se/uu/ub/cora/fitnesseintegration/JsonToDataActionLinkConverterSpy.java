@@ -16,40 +16,24 @@
  *     You should have received a copy of the GNU General Public License
  *     along with Cora.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package se.uu.ub.cora.fitnesseintegration;
 
+import se.uu.ub.cora.clientdata.Action;
+import se.uu.ub.cora.clientdata.ActionLink;
+import se.uu.ub.cora.clientdata.ClientData;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataActionLinkConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverter;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.json.parser.JsonValue;
 
-public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory {
+public class JsonToDataActionLinkConverterSpy implements JsonToDataActionLinkConverter {
 
-	public JsonToDataConverterSpy factored;
-
-	@Override
-	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
-		factored = new JsonToDataConverterSpy(jsonValue);
-		return factored;
+	public JsonToDataActionLinkConverterSpy(JsonValue jsonValue) {
+		// TODO Auto-generated constructor stub
 	}
 
 	@Override
-	public JsonToDataConverter createForJsonString(String json) {
-		factored = new JsonToDataConverterSpy(json);
-		return factored;
-	}
-
-	@Override
-	public JsonToDataActionLinkConverter createActionLinksConverterForJsonString(String json) {
+	public ClientData toInstance() {
 		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public JsonToDataActionLinkConverter createJsonToDataActionLinkConverterForJsonObject(
-			JsonValue jsonValue) {
-		return new JsonToDataActionLinkConverterSpy(jsonValue);
+		return ActionLink.withAction(Action.READ);
 	}
 
 }

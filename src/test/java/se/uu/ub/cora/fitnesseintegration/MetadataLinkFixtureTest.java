@@ -19,6 +19,7 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
 import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
@@ -27,6 +28,9 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonString;
 
 public class MetadataLinkFixtureTest {
 
@@ -78,21 +82,41 @@ public class MetadataLinkFixtureTest {
 	}
 
 	@Test
-	public void testHttpHandler() {
+	public void testNameInData() {
 		fixture.setAuthToken("someToken");
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 
+		assertCorrectHttpHandler();
+
+		String nameInData = fixture.getNameInData();
+		assertEquals(nameInData, "someNameInData");
+
+		assertTrue(fixture.getJsonToRecordDataConverter() instanceof JsonToDataRecordConverter);
+		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
+
+		assertTrue(converterSpy.toInstanceWasCalled);
+
+		JsonObject jsonObject = (JsonObject) converterSpy.jsonValue;
+		assertJsonObjectFromReadRecordWasSentToConverter(jsonObject);
+
+	}
+
+	private void assertCorrectHttpHandler() {
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
 		assertEquals(httpHandlerFactorySpy.urlString,
 				"http://localhost:8080/therest/rest/record/metadataGroup/someRecordId");
 		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
 				"someToken");
-		String nameInData = fixture.getNameInData();
-		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
-		assertTrue(converterSpy.toInstanceWasCalled);
-		// assertEquals(converterSpy.json, );
-		assertEquals(nameInData, "includePart");
+	}
+
+	private void assertJsonObjectFromReadRecordWasSentToConverter(JsonObject jsonObject) {
+		JsonString name = jsonObject.getValueAsJsonString("name");
+		assertEquals(name.getStringValue(), "metadata");
+
+		assertNotNull(jsonObject.getValue("children"));
+		assertNotNull(jsonObject.getValue("attributes"));
+		assertEquals(jsonObject.entrySet().size(), 3);
 	}
 
 	@Test
@@ -103,6 +127,7 @@ public class MetadataLinkFixtureTest {
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 		assertEquals(fixture.getRepeatMin(), "not found");
+		assertEquals(fixture.getNameInData(), "not found");
 	}
 
 	@Test
