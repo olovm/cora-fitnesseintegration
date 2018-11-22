@@ -98,7 +98,7 @@ public class MetadataLinkFixtureTest {
 		assertTrue(converterSpy.toInstanceWasCalled);
 
 		JsonObject jsonObject = (JsonObject) converterSpy.jsonValue;
-		assertJsonObjectFromReadRecordWasSentToConverter(jsonObject);
+		assertJsonObjectFromReadRecordIsSentToConverter(jsonObject);
 
 	}
 
@@ -110,7 +110,7 @@ public class MetadataLinkFixtureTest {
 				"someToken");
 	}
 
-	private void assertJsonObjectFromReadRecordWasSentToConverter(JsonObject jsonObject) {
+	private void assertJsonObjectFromReadRecordIsSentToConverter(JsonObject jsonObject) {
 		JsonString name = jsonObject.getValueAsJsonString("name");
 		assertEquals(name.getStringValue(), "metadata");
 

@@ -27,12 +27,10 @@ import se.uu.ub.cora.json.parser.JsonValue;
 public class JsonToDataActionLinkConverterSpy implements JsonToDataActionLinkConverter {
 
 	public JsonToDataActionLinkConverterSpy(JsonValue jsonValue) {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public ClientData toInstance() {
-		// TODO Auto-generated method stub
 		return ActionLink.withAction(Action.READ);
 	}
 

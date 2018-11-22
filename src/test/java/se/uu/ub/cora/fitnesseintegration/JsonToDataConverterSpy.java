@@ -18,7 +18,6 @@ public class JsonToDataConverterSpy implements JsonToDataConverter {
 
 	public JsonToDataConverterSpy(JsonValue jsonValue) {
 		this.jsonValue = jsonValue;
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
