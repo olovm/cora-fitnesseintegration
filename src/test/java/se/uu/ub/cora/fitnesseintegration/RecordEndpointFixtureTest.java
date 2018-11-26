@@ -26,7 +26,7 @@ public class RecordEndpointFixtureTest {
 		AuthTokenHolder.setAdminAuthToken("someAdminToken");
 		DependencyProvider.setHttpHandlerFactoryClassName(
 				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
-		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getFactory();
+		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
 		fixture = new RecordEndpointFixture();
 	}
 

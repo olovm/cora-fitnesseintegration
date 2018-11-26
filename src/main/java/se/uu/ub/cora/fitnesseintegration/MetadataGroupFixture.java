@@ -13,7 +13,6 @@ public class MetadataGroupFixture {
 
 	public void setChildNameInData(String nameInData) {
 		this.nameInData = nameInData;
-
 	}
 
 	public int numberOfChildrenWithNameInData() {

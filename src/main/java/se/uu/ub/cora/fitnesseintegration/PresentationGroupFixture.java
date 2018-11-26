@@ -37,11 +37,21 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 		List<ClientDataGroup> childReferenceGroups = extractChildReferences(topLevelDataGroup);
 		int children = 0;
 		for (ClientDataGroup childReference : childReferenceGroups) {
-			if (childReferenceMatchesTypeAndId(childReference)) {
+
+			if (childReferenceMatches(childReference)) {
 				children++;
 			}
 		}
 		return children;
+	}
+
+	private boolean childReferenceMatches(ClientDataGroup childReference) {
+		String childLinkedRecordType = extractValueFromReferenceUsingNameInData(childReference,
+				"linkedRecordType");
+		String childLinkedRecordId = extractValueFromReferenceUsingNameInData(childReference,
+				"linkedRecordId");
+
+		return childReferenceMatchesTypeAndId(childLinkedRecordType, childLinkedRecordId);
 	}
 
 	private boolean recordHasDataGroup(ClientDataRecord record) {
@@ -59,7 +69,7 @@ public class PresentationGroupFixture extends MetadataLinkFixture {
 	}
 
 	@Override
-	protected String extractValueFromReferenceByNameInData(ClientDataGroup childReference,
+	protected String extractValueFromReferenceUsingNameInData(ClientDataGroup childReference,
 			String childNameInData) {
 		ClientDataGroup refGroup = childReference.getFirstGroupWithNameInData("refGroup");
 		ClientDataGroup ref = refGroup.getFirstGroupWithNameInData("ref");

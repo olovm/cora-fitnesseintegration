@@ -21,11 +21,13 @@ package se.uu.ub.cora.fitnesseintegration;
 
 import java.lang.reflect.Constructor;
 
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
 
 public final class DependencyProvider {
 
 	private static HttpHandlerFactory httpHandlerFactory;
+	private static JsonToDataConverterFactory jsonToDataConverterFactory;
 
 	public DependencyProvider() {
 		// needs a public constructor for fitnesse to work
@@ -43,8 +45,24 @@ public final class DependencyProvider {
 		}
 	}
 
-	public static HttpHandlerFactory getFactory() {
+	public static HttpHandlerFactory getHttpHandlerFactory() {
 		return httpHandlerFactory;
+	}
+
+	public static synchronized void setJsonToDataFactoryClassName(
+			String jsonToDataConverterFactoryClassName) {
+		Constructor<?> constructor;
+		try {
+			constructor = Class.forName(jsonToDataConverterFactoryClassName).getConstructor();
+			jsonToDataConverterFactory = (JsonToDataConverterFactory) constructor.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
+	public static JsonToDataConverterFactory getJsonToDataConverterFactory() {
+		return jsonToDataConverterFactory;
 	}
 
 }
