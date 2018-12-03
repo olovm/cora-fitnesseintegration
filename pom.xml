@@ -23,18 +23,18 @@
 	<parent>
 		<groupId>se.uu.ub.cora</groupId>
 		<artifactId>cora-parent</artifactId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.8-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>fitnesseintegration</artifactId>
 	<packaging>jar</packaging>
-	<version>0.2-SNAPSHOT</version>
+	<version>0.3-SNAPSHOT</version>
 	<name>Fitnesse integration</name>
 
 	<properties>
-		<json.version>0.4-SNAPSHOT</json.version>
-		<httphandler.version>0.4-SNAPSHOT</httphandler.version>
-		<cora-clientdata.version>0.2-SNAPSHOT</cora-clientdata.version>
+		<json.version>0.5-SNAPSHOT</json.version>
+		<httphandler.version>0.5-SNAPSHOT</httphandler.version>
+		<cora-clientdata.version>0.3-SNAPSHOT</cora-clientdata.version>
 		<javax.ws.rs.version>2.1.1</javax.ws.rs.version>
 		<fitnesse.version>20180127</fitnesse.version>
 	</properties>
@@ -89,12 +89,6 @@
 			<version>1.9</version>
 		</dependency>
 		<!-- FitNesse end -->
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency>
 			<groupId>org.apache.httpcomponents</groupId>
 			<artifactId>httpclient</artifactId>
