@@ -19,6 +19,8 @@
 package se.uu.ub.cora.fitnesseintegration;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+import static org.testng.Assert.assertTrue;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -26,13 +28,27 @@ import org.testng.annotations.Test;
 import se.uu.ub.cora.clientdata.ClientDataAtomic;
 import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
+import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
+import se.uu.ub.cora.json.parser.JsonObject;
+import se.uu.ub.cora.json.parser.JsonString;
 
 public class MetadataLinkFixtureTest {
 
 	MetadataLinkFixture fixture;
+	private HttpHandlerFactorySpy httpHandlerFactorySpy;
+	private JsonToDataConverterFactorySpy jsonToDataConverterFactory;
 
 	@BeforeMethod
 	public void setUp() {
+		SystemUrl.setUrl("http://localhost:8080/therest/");
+		AuthTokenHolder.setAdminAuthToken("someAdminToken");
+		DependencyProvider.setHttpHandlerFactoryClassName(
+				"se.uu.ub.cora.fitnesseintegration.HttpHandlerFactorySpy");
+		DependencyProvider.setJsonToDataFactoryClassName(
+				"se.uu.ub.cora.fitnesseintegration.JsonToDataConverterFactorySpy");
+		httpHandlerFactorySpy = (HttpHandlerFactorySpy) DependencyProvider.getHttpHandlerFactory();
+		jsonToDataConverterFactory = (JsonToDataConverterFactorySpy) DependencyProvider
+				.getJsonToDataConverterFactory();
 		fixture = new MetadataLinkFixture();
 
 		ClientDataGroup topLevelDataGroup = createTopLevelDataGroup();
@@ -66,17 +82,56 @@ public class MetadataLinkFixtureTest {
 	}
 
 	@Test
-	public void testLinkIsNotPresent() {
+	public void testNameInData() {
+		fixture.setAuthToken("someToken");
+		fixture.setLinkedRecordType("metadataGroup");
+		fixture.setLinkedRecordId("someRecordId");
+
+		assertCorrectHttpHandler();
+
+		String nameInData = fixture.getNameInData();
+		assertEquals(nameInData, "someNameInData");
+
+		assertTrue(fixture.getJsonToRecordDataConverter() instanceof JsonToDataRecordConverter);
+		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
+
+		assertTrue(converterSpy.toInstanceWasCalled);
+
+		JsonObject jsonObject = (JsonObject) converterSpy.jsonValue;
+		assertJsonObjectFromReadRecordIsSentToConverter(jsonObject);
+
+	}
+
+	private void assertCorrectHttpHandler() {
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestMetod, "GET");
+		assertEquals(httpHandlerFactorySpy.urlString,
+				"http://localhost:8080/therest/rest/record/metadataGroup/someRecordId");
+		assertEquals(httpHandlerFactorySpy.httpHandlerSpy.requestProperties.get("authToken"),
+				"someToken");
+	}
+
+	private void assertJsonObjectFromReadRecordIsSentToConverter(JsonObject jsonObject) {
+		JsonString name = jsonObject.getValueAsJsonString("name");
+		assertEquals(name.getStringValue(), "metadata");
+
+		assertNotNull(jsonObject.getValue("children"));
+		assertNotNull(jsonObject.getValue("attributes"));
+		assertEquals(jsonObject.entrySet().size(), 3);
+	}
+
+	@Test
+	public void testNoMatchingChild() {
 		ClientDataGroup topLevelDataGroup = ClientDataGroup.withNameInData("metadata");
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(topLevelDataGroup);
 		RecordHolder.setRecord(record);
 		fixture.setLinkedRecordType("metadataGroup");
 		fixture.setLinkedRecordId("someRecordId");
 		assertEquals(fixture.getRepeatMin(), "not found");
+		assertEquals(fixture.getNameInData(), "not found");
 	}
 
 	@Test
-	public void testNoTopLevelDatagroup() {
+	public void testNoTopLevelDatagroupInRecord() {
 		ClientDataRecord record = ClientDataRecord.withClientDataGroup(null);
 		RecordHolder.setRecord(record);
 		fixture.setLinkedRecordId("someRecordId");

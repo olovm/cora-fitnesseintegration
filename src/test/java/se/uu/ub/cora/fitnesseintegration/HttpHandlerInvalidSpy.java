@@ -39,13 +39,11 @@ public class HttpHandlerInvalidSpy implements HttpHandler {
 
 	@Override
 	public void setRequestMethod(String requestMetod) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public String getResponseText() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -56,13 +54,11 @@ public class HttpHandlerInvalidSpy implements HttpHandler {
 
 	@Override
 	public void setOutput(String outputString) {
-		// TODO Auto-generated method stub
 
 	}
 
 	@Override
 	public void setRequestProperty(String key, String value) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -73,13 +69,10 @@ public class HttpHandlerInvalidSpy implements HttpHandler {
 
 	@Override
 	public void setStreamOutput(InputStream stream) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public String getHeaderField(String name) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
