@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2016 Uppsala University Library
+ * Copyright 2015, 2016, 2019 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -29,9 +29,9 @@ import java.nio.charset.StandardCharsets;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.StatusType;
 
+import se.uu.ub.cora.clientdata.ClientDataGroup;
 import se.uu.ub.cora.clientdata.ClientDataRecord;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactory;
-import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataConverterFactoryImp;
 import se.uu.ub.cora.clientdata.converter.jsontojava.JsonToDataRecordConverter;
 import se.uu.ub.cora.httphandler.HttpHandler;
 import se.uu.ub.cora.httphandler.HttpHandlerFactory;
@@ -63,9 +63,12 @@ public class RecordEndpointFixture {
 	private String baseUrl = SystemUrl.getUrl() + "rest/record/";
 	private HttpHandlerFactory httpHandlerFactory;
 	private String token;
+	private JsonToDataConverterFactory jsonToDataConverterFactory;
+	private String valid;
 
 	public RecordEndpointFixture() {
 		httpHandlerFactory = DependencyProvider.getHttpHandlerFactory();
+		jsonToDataConverterFactory = DependencyProvider.getJsonToDataConverterFactory();
 	}
 
 	public void setType(String type) {
@@ -176,14 +179,15 @@ public class RecordEndpointFixture {
 
 	private HttpHandler setUpHttpHandlerForCreate() {
 		String url = baseUrl + type;
-		return createHttpHandlerForPostWithUrl(url);
+		return createHttpHandlerForPostWithUrlAndContentType(url, APPLICATION_UUB_RECORD_JSON);
 	}
 
-	private HttpHandler createHttpHandlerForPostWithUrl(String url) {
+	private HttpHandler createHttpHandlerForPostWithUrlAndContentType(String url,
+			String contentType) {
 		HttpHandler httpHandler = createHttpHandlerWithAuthTokenAndUrl(url);
 		httpHandler.setRequestMethod("POST");
 		httpHandler.setRequestProperty(ACCEPT, APPLICATION_UUB_RECORD_JSON);
-		httpHandler.setRequestProperty("Content-Type", APPLICATION_UUB_RECORD_JSON);
+		httpHandler.setRequestProperty("Content-Type", contentType);
 		httpHandler.setOutput(json);
 		return httpHandler;
 	}
@@ -270,7 +274,8 @@ public class RecordEndpointFixture {
 
 	public String testUpdateRecord() {
 		String url = baseUrl + type + "/" + id;
-		HttpHandler httpHandler = createHttpHandlerForPostWithUrl(url);
+		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(url,
+				APPLICATION_UUB_RECORD_JSON);
 		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
 
 		if (statusType.equals(Response.Status.OK)) {
@@ -369,14 +374,45 @@ public class RecordEndpointFixture {
 
 	public void testReadRecordAndStoreJson() {
 		String responseText = testReadRecord();
-		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
-
-		JsonToDataConverterFactory recordConverterFactory = new JsonToDataConverterFactoryImp();
-		JsonToDataRecordConverter converter = JsonToDataRecordConverter
-				.forJsonObjectUsingConverterFactory(recordJsonObject, recordConverterFactory);
-		ClientDataRecord clientDataRecord = converter.toInstance();
+		ClientDataRecord clientDataRecord = convertJsonToClientDataRecord(responseText);
 
 		RecordHolder.setRecord(clientDataRecord);
 	}
 
+	private ClientDataRecord convertJsonToClientDataRecord(String responseText) {
+		JsonObject recordJsonObject = createJsonObjectFromResponseText(responseText);
+
+		JsonToDataRecordConverter converter = JsonToDataRecordConverter
+				.forJsonObjectUsingConverterFactory(recordJsonObject, jsonToDataConverterFactory);
+		return converter.toInstance();
+	}
+
+	public String testValidateRecord() {
+		HttpHandler httpHandler = createHttpHandlerForPostWithUrlAndContentType(
+				baseUrl + "workOrder", "application/vnd.uub.workorder+json");
+		statusType = Response.Status.fromStatusCode(httpHandler.getResponseCode());
+
+		if (statusType.equals(Response.Status.OK)) {
+			String responseText = httpHandler.getResponseText();
+			ClientDataRecord validationResultRecord = convertJsonToClientDataRecord(responseText);
+
+			ClientDataGroup dataGroup = validationResultRecord.getClientDataGroup();
+			valid = dataGroup.getFirstAtomicValueWithNameInData("valid");
+			return responseText;
+		}
+		return httpHandler.getErrorText();
+
+	}
+
+	public String getValid() {
+		return valid;
+	}
+
+	public HttpHandlerFactory getHttpHandlerFactory() {
+		return httpHandlerFactory;
+	}
+
+	public JsonToDataConverterFactory getJsonToDataConverterFactory() {
+		return jsonToDataConverterFactory;
+	}
 }

@@ -93,7 +93,7 @@ public class MetadataLinkFixtureTest {
 		assertEquals(nameInData, "someNameInData");
 
 		assertTrue(fixture.getJsonToRecordDataConverter() instanceof JsonToDataRecordConverter);
-		JsonToDataConverterSpy converterSpy = jsonToDataConverterFactory.factored;
+		JsonToDataConverterSpy converterSpy = (JsonToDataConverterSpy) jsonToDataConverterFactory.factored;
 
 		assertTrue(converterSpy.toInstanceWasCalled);
 
