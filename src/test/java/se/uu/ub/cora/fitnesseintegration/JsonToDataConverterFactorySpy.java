@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Uppsala University Library
+ * Copyright 2018, 2019 Uppsala University Library
  *
  * This file is part of Cora.
  *
@@ -26,17 +26,29 @@ import se.uu.ub.cora.json.parser.JsonValue;
 
 public class JsonToDataConverterFactorySpy implements JsonToDataConverterFactory {
 
-	public JsonToDataConverterSpy factored;
+	public JsonToDataConverter factored;
+	public String typeToFactor = "";
+	public String isValid = "true";
 
 	@Override
 	public JsonToDataConverter createForJsonObject(JsonValue jsonValue) {
-		factored = new JsonToDataConverterSpy(jsonValue);
+		if ("validatorSpy".equals(typeToFactor)) {
+			factored = new JsonToDataConverterForValidationSpy(jsonValue);
+			((JsonToDataConverterForValidationSpy) factored).isValid = isValid;
+		} else {
+			factored = new JsonToDataConverterSpy(jsonValue);
+		}
 		return factored;
 	}
 
 	@Override
 	public JsonToDataConverter createForJsonString(String json) {
-		factored = new JsonToDataConverterSpy(json);
+		if ("validatorSpy".equals(typeToFactor)) {
+			factored = new JsonToDataConverterForValidationSpy(json);
+			((JsonToDataConverterForValidationSpy) factored).isValid = isValid;
+		} else {
+			factored = new JsonToDataConverterSpy(json);
+		}
 		return factored;
 	}
 
